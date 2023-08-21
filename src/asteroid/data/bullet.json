@@ -1,0 +1,26 @@
+{
+    "scale": 0.05,
+    "dimentions": [
+        60,
+        60
+    ],
+    "lst": [
+        {
+            "type": "DrawableMove",
+            "point": [
+                30.0,
+                30.0
+            ]
+        },
+        {
+            "type": "DrawableArc",
+            "point": [
+                30.0,
+                30.0
+            ],
+            "radius": 30.0,
+            "start_angle": 0.0,
+            "end_angle": 6.283185307179586
+        }
+    ]
+}

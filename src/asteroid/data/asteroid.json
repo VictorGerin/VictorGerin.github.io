@@ -1,0 +1,58 @@
+{
+    "scale": 1,
+    "dimentions": [
+        68,
+        80
+    ],
+    "lst": [
+        {
+            "type": "DrawableMove",
+            "point": [
+                30.0,
+                30.0
+            ]
+        },
+        {
+            "type": "DrawableLineTo",
+            "point": [
+                10.0,
+                40.0
+            ]
+        },
+        {
+            "type": "DrawableLineTo",
+            "point": [
+                15.0,
+                60.0
+            ]
+        },
+        {
+            "type": "DrawableLineTo",
+            "point": [
+                45.0,
+                80.0
+            ]
+        },
+        {
+            "type": "DrawableLineTo",
+            "point": [
+                65.0,
+                60.0
+            ]
+        },
+        {
+            "type": "DrawableLineTo",
+            "point": [
+                65.0,
+                30.0
+            ]
+        },
+        {
+            "type": "DrawableLineTo",
+            "point": [
+                30.0,
+                30.0
+            ]
+        }
+    ]
+}
