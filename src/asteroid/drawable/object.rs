@@ -2,7 +2,7 @@ use super::*;
 use na::{Point2, Rotation2};
 use serde::Deserialize;
 
-#[derive(Deserialize, Default, Debug)]
+#[derive(Deserialize, Default, Debug, Clone)]
 pub struct Object {
     dimentions: Vector2<f64>,
     lst: Vec<DrawableType>,
@@ -27,19 +27,23 @@ impl TryFrom<&str> for Object {
 
         for drawable_type in ship.lst.iter() {
             match drawable_type {
-                DrawableType::DrawableLineTo { 
-                    point
-                } => {
+                DrawableType::DrawableLineTo { point } => {
                     lst_vec_point.push(Point2::new(point.x, point.y));
                 }
                 DrawableType::DrawableMove { point } => {
                     lst_vec_point.push(Point2::new(point.x, point.y));
                 }
-                DrawableType::DrawableArc { point, radius, start_angle, end_angle } => {
+                DrawableType::DrawableArc {
+                    point,
+                    radius,
+                    start_angle,
+                    end_angle,
+                } => {
                     let ref_axis = Vector2::new(1.0, 0.0);
                     let rad_var = 1f64.to_radians();
                     let rot = Rotation2::new(rad_var);
-                    let mut vec_dir: Vector2<f64> = Rotation2::new(*start_angle)  * ref_axis * *radius;
+                    let mut vec_dir: Vector2<f64> =
+                        Rotation2::new(*start_angle) * ref_axis * *radius;
                     {
                         let mut end_angle = *end_angle;
                         while end_angle > *start_angle {
@@ -49,11 +53,11 @@ impl TryFrom<&str> for Object {
                             lst_vec_point.push(Point2::new(current.x, current.y));
                         }
                     }
-                    let vec_dir: Vector2<f64> = Rotation2::new(*end_angle)  * ref_axis * *radius;
+                    let vec_dir: Vector2<f64> = Rotation2::new(*end_angle) * ref_axis * *radius;
                     let current = point + vec_dir;
                     lst_vec_point.push(Point2::new(current.x, current.y));
                 }
-                _ => todo!()
+                _ => todo!(),
             };
         }
         ship.lst_vec_point = lst_vec_point;
@@ -79,6 +83,14 @@ impl Drawable for Object {
 
         let scale = self.scale;
         let center = self.dimentions() / 2.0;
+
+        // let transform: Matrix2<f64> = Matrix2::new_scaling(scale);
+        // let transform: Matrix2<f64> = transform * Matrix2::new_translation(&offset);
+        // let transform: Matrix2<f64> = transform * Rotation2::new(rotation);
+
+        // Matrix2::new_scaling(scale)
+        //     * Matrix2::new_translation(offset.coords)
+        //     * Matrix2::new_rotation(rotation);
 
         //executa offset
         context.translate(offset.x, offset.y)?;

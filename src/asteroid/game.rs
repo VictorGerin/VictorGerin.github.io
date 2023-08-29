@@ -68,7 +68,6 @@ pub struct Game {
     entities: Vec<Entity>,
     player_index: usize,
     context: CanvasRenderingContext2d,
-    canvas: HtmlCanvasElement,
     canvas_dim: Vector2<f64>,
     pub input: UserInput,
     rng: rand::rngs::ThreadRng,
@@ -155,7 +154,6 @@ impl Game {
             entities,
             context,
             canvas_dim: Vector2::new(canvas.width() as f64, canvas.height() as f64),
-            canvas,
             input: Default::default(),
             player_index: 0, //player is always the first entity
             rng,
@@ -168,22 +166,22 @@ impl Game {
     }
 
     #[allow(dead_code)]
-    fn draw_debug_point(&self, point: Vector2<f64>) {
+    fn draw_debug_point(&self, point: Point2<f64>) {
         self.context.begin_path();
         self.context
-            .arc(point.x, point.y, 10.0, 0.0, 2.0 * std::f64::consts::PI)
+            .arc(point.x, point.y, 2.0, 0.0, 2.0 * std::f64::consts::PI)
             .unwrap();
         self.context.fill();
     }
 
     #[allow(dead_code)]
-    fn draw_vector(context: &CanvasRenderingContext2d, pos: Vector2<f64>, vector: Vector2<f64>) {
-        context.begin_path();
-        context.move_to(pos.x, pos.y);
+    fn draw_vector(&self, pos: Point2<f64>, vector: Vector2<f64>) {
+        self.context.begin_path();
+        self.context.move_to(pos.x, pos.y);
         let vector = pos + vector;
-        context.line_to(vector.x, vector.y);
-        context.stroke();
-        // Game::draw_debug_point(vector);
+        self.context.line_to(vector.x, vector.y);
+        self.context.stroke();
+        self.draw_debug_point(vector);
     }
 
     fn spawn_bullet(player: &mut Entity, input: &UserInput) -> Entity {
@@ -203,7 +201,7 @@ impl Game {
     fn draw_text(&self, time: f64, delta: f64) {
         let context: &CanvasRenderingContext2d = &self.context;
         let player: &Entity = self.entities.get(self.player_index).unwrap();
-        
+
         let mut offset = 1.0;
         context
             .fill_text(
@@ -250,41 +248,40 @@ impl Game {
             .unwrap();
         offset += 1.0;
         context
-        .fill_text(
-            &format!("ACCM : {:?}", player.get_acc().magnitude()),
-            1.0,
-            10.0 * offset,
-        )
-        .unwrap();
-    // offset += 1.0;
+            .fill_text(
+                &format!("ACCM : {:?}", player.get_acc().magnitude()),
+                1.0,
+                10.0 * offset,
+            )
+            .unwrap();
+        // offset += 1.0;
     }
 
     fn random_point(&mut self) -> Point2<f64> {
-        Point2::new(self.rng.gen_range(0.0..self.canvas_dim.x), self.rng.gen_range(0.0..self.canvas_dim.y))
+        Point2::new(
+            self.rng.gen_range(0.0..self.canvas_dim.x),
+            self.rng.gen_range(0.0..self.canvas_dim.y),
+        )
     }
 
     fn spawn_asteroid(&mut self) -> Entity {
-        let mut person: Entity = data::get_asteroid()
+        let mut asteroid: Entity = data::get_asteroid()
             .try_into()
             .expect("Worng json format for Object");
 
         let pos = self.random_point();
-        person.set_speed(Vector2::new(0.0, 0.0));
-        person.set_pos(pos);
-        person.set_rotation(0f64.to_radians());
-        person.set_delete_on_out_of_bounds(false);
+        asteroid.set_speed(Vector2::new(0.0, 0.0));
+        asteroid.set_pos(pos);
+        asteroid.set_rotation(0f64.to_radians());
+        asteroid.set_delete_on_out_of_bounds(false);
 
-        person
+        asteroid
     }
 
     pub fn game_loop(&mut self, time: f64, delta: f64) {
         let player = self.entities.get_mut(self.player_index).unwrap();
-        self.context.clear_rect(
-            0f64,
-            0f64,
-            self.canvas.width() as f64,
-            self.canvas.height() as f64,
-        );
+        self.context
+            .clear_rect(0f64, 0f64, self.canvas_dim.x, self.canvas_dim.y);
 
         if self.input.mouse.left {
             player.process_player_acc(self.input.mouse.pos);
@@ -302,10 +299,7 @@ impl Game {
 
         if self.input.mouse.right {
             if (time - self.last_shoot) > 200.0 {
-                let bullet = Game::spawn_bullet(
-                    player,
-                    &self.input,
-                );
+                let bullet = Game::spawn_bullet(player, &self.input);
                 self.entities.push(bullet);
                 self.last_shoot = time;
             }
@@ -320,7 +314,6 @@ impl Game {
 
         //physics loop
         for (i, entity) in self.entities.iter_mut().enumerate() {
-            
             entity.update_physics(delta);
 
             if entity.shoud_teleport(self.canvas_dim) {
@@ -333,13 +326,10 @@ impl Game {
 
                 entity.set_pos(new_pos.coords.abs().into());
 
-                // entity.set_pos(new_pos.abs());
-
                 if entity.get_delete_on_out_of_bounds() {
                     to_be_removed.push(i);
                 }
             }
-
         }
 
         //after each remove the index of the next element is reduced by 1
@@ -353,12 +343,11 @@ impl Game {
         for entity in self.entities.iter() {
             entity.draw(&self.context).unwrap();
 
-            if entity.shoud_draw_again(self.canvas_dim)
-            {
+            if entity.shoud_draw_again(self.canvas_dim) {
                 let mut new_pos = entity.get_pos();
                 let size = entity.get_object().dimentions().clone();
 
-                let diff= new_pos - self.canvas_dim;
+                let diff = new_pos - self.canvas_dim;
 
                 if diff.x > -size.x {
                     new_pos.x = diff.x;
@@ -374,11 +363,7 @@ impl Game {
 
         {
             let _color = ChangeColor::color("red", &self.context);
-            self.draw_text(
-                time,
-                delta,
-            );
+            self.draw_text(time, delta);
         }
     }
-
 }

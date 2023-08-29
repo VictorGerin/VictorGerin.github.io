@@ -7,7 +7,7 @@ use wasm_bindgen::prelude::*;
 use web_sys::*;
 use DrawableType::*;
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 #[serde(tag = "type")]
 pub enum DrawableType {
     DrawableArc {

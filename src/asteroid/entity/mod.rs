@@ -1,11 +1,11 @@
 extern crate nalgebra as na;
 use super::drawable::*;
 
-use na::{Vector2, Point2};
+use na::{Point2, Vector2};
 use wasm_bindgen::JsValue;
 use web_sys::CanvasRenderingContext2d;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Entity {
     object: Object,
     pos: Point2<f64>,
@@ -13,7 +13,7 @@ pub struct Entity {
     acc: Vector2<f64>,
     rotation: f64,
     delete_on_out_of_bounds: bool,
-    max_speed: f64,
+    max_speed_sqr: f64,
 }
 
 impl TryFrom<&str> for Entity {
@@ -27,7 +27,7 @@ impl TryFrom<&str> for Entity {
             rotation: Default::default(),
             acc: Vector2::default(),
             delete_on_out_of_bounds: true,
-            max_speed: Default::default(),
+            max_speed_sqr: Default::default(),
         })
     }
 }
@@ -35,8 +35,8 @@ impl TryFrom<&str> for Entity {
 impl Entity {
     pub fn update_physics(&mut self, delta: f64) {
         self.speed += self.acc * delta;
-        if self.max_speed != 0.0 && self.speed.magnitude() > self.max_speed {
-            self.speed = self.speed.normalize() * self.max_speed;
+        if self.max_speed_sqr != 0.0 && self.speed.norm_squared() > self.max_speed_sqr {
+            self.speed = self.speed.normalize() * self.max_speed_sqr.sqrt();
         }
         self.pos += self.speed * delta;
     }
@@ -50,7 +50,7 @@ impl Entity {
     }
 
     pub fn set_max_speed(&mut self, speed: f64) {
-        self.max_speed = speed;
+        self.max_speed_sqr = speed * speed;
     }
 
     pub fn get_pos_center(&self) -> Point2<f64> {
@@ -82,7 +82,7 @@ impl Entity {
     }
 
     pub fn draw(&self, context: &CanvasRenderingContext2d) -> Result<(), JsValue> {
-        self.object.draw(context, self.pos, self.rotation, 0.0)
+        self.draw_position(context, self.get_pos())
     }
 
     pub fn draw_position(
