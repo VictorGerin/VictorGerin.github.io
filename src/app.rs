@@ -4,7 +4,7 @@ use yew::prelude::*;
 
 #[function_component(App)]
 pub fn app() -> Html {
-    log::info!("INIT !!");
+    log::info!("INIT !! 2");
     let texto = use_state(|| "".to_owned());
 
     use_effect_with_deps(
