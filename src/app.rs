@@ -10,7 +10,7 @@ pub fn app() -> Html {
     use_effect_with_deps(
         move |_| {
             wasm_bindgen_futures::spawn_local(async move {
-                let temp = Request::get("http://cors.io/?https://muddy-leaf-3674.fly.dev/teste")
+                let temp = Request::get("https://muddy-leaf-3674.fly.dev/teste")
                     .send()
                     .await
                     .unwrap()
