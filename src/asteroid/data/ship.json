@@ -4,41 +4,31 @@
         60,
         60
     ],
-    "lst": [
-        {
-            "type": "DrawableMove",
-            "point": [
-                30.0,
-                0.0
-            ]
-        },
-        {
-            "type": "DrawableLineTo",
-            "point": [
-                2.0,
-                60.0
-            ]
-        },
-        {
-            "type": "DrawableLineTo",
-            "point": [
-                30.0,
-                50.0
-            ]
-        },
-        {
-            "type": "DrawableLineTo",
-            "point": [
-                60.0,
-                60.0
-            ]
-        },
-        {
-            "type": "DrawableLineTo",
-            "point": [
-                30.0,
-                0.0
-            ]
-        }
+    "lst_vec_point": [
+        [
+            30.0,
+            0.0
+        ],
+        [
+            2.0,
+            60.0
+        ],
+        [
+            30.0,
+            50.0
+        ],
+        [
+            60.0,
+            60.0
+        ],
+        [
+            30.0,
+            0.0
+        ]
+    ],
+    "matrix": [
+        [],
+        0,
+        2
     ]
 }

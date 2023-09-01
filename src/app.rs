@@ -1,8 +1,29 @@
 use crate::asteroid::Asteroid;
+use gloo_net::http::Request;
 use yew::prelude::*;
 
 #[function_component(App)]
 pub fn app() -> Html {
+    log::info!("INIT !!");
+    let texto = use_state(|| "".to_owned());
+
+    use_effect_with_deps(
+        move |_| {
+            wasm_bindgen_futures::spawn_local(async move {
+                let temp = Request::get("/teste")
+                    .send()
+                    .await
+                    .unwrap()
+                    .text()
+                    .await
+                    .unwrap();
+
+                log::info!("temp : '{}'", temp);
+            });
+            || ()
+        },
+        (),
+    );
 
     html! {
         <main>

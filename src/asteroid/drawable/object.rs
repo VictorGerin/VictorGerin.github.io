@@ -1,15 +1,16 @@
 use super::*;
-use na::{Point2, Rotation2};
+use na::{DMatrix, Dyn, Matrix, Point2, Rotation2, VecStorage};
 use serde::Deserialize;
-
-#[derive(Deserialize, Default, Debug, Clone)]
+pub type PointMatrix =
+    Matrix<f64, nalgebra::Const<2>, Dyn, VecStorage<f64, nalgebra::Const<2>, Dyn>>;
+#[derive(Deserialize, Debug, Clone)]
 pub struct Object {
     dimentions: Vector2<f64>,
-    lst: Vec<DrawableType>,
-    #[serde(default)]
+    // lst: Vec<DrawableType>,
     lst_vec_point: Vec<Point2<f64>>,
     #[serde(default)]
     scale: f64,
+    matrix: DMatrix<f64>,
 }
 
 impl Object {
@@ -23,53 +24,53 @@ impl TryFrom<&str> for Object {
     fn try_from(data: &str) -> Result<Self, Self::Error> {
         let mut ship: Object = serde_json::from_str(data)?;
 
-        let mut lst_vec_point: Vec<Point2<f64>> = Vec::with_capacity(ship.lst.len() * 2);
+        // let mut lst_vec_point: Vec<Point2<f64>> = Vec::with_capacity(ship.lst.len() * 2);
 
-        for drawable_type in ship.lst.iter() {
-            match drawable_type {
-                DrawableType::DrawableLineTo { point } => {
-                    lst_vec_point.push(Point2::new(point.x, point.y));
-                }
-                DrawableType::DrawableMove { point } => {
-                    lst_vec_point.push(Point2::new(point.x, point.y));
-                }
-                DrawableType::DrawableArc {
-                    point,
-                    radius,
-                    start_angle,
-                    end_angle,
-                } => {
-                    let ref_axis = Vector2::new(1.0, 0.0);
-                    let rad_var = 1f64.to_radians();
-                    let rot = Rotation2::new(rad_var);
-                    let mut vec_dir: Vector2<f64> =
-                        Rotation2::new(*start_angle) * ref_axis * *radius;
-                    {
-                        let mut end_angle = *end_angle;
-                        while end_angle > *start_angle {
-                            end_angle -= rad_var;
-                            let current = point + vec_dir;
-                            vec_dir = rot * vec_dir;
-                            lst_vec_point.push(Point2::new(current.x, current.y));
-                        }
-                    }
-                    let vec_dir: Vector2<f64> = Rotation2::new(*end_angle) * ref_axis * *radius;
-                    let current = point + vec_dir;
-                    lst_vec_point.push(Point2::new(current.x, current.y));
-                }
-                _ => todo!(),
-            };
-        }
-        ship.lst_vec_point = lst_vec_point;
+        // for drawable_type in ship.lst.iter() {
+        //     match drawable_type {
+        //         DrawableType::DrawableLineTo { point } => {
+        //             lst_vec_point.push(Point2::new(point.x, point.y));
+        //         }
+        //         DrawableType::DrawableMove { point } => {
+        //             lst_vec_point.push(Point2::new(point.x, point.y));
+        //         }
+        //         DrawableType::DrawableArc {
+        //             point,
+        //             radius,
+        //             start_angle,
+        //             end_angle,
+        //         } => {
+        //             let ref_axis = Vector2::new(1.0, 0.0);
+        //             let rad_var = 1f64.to_radians();
+        //             let rot = Rotation2::new(rad_var);
+        //             let mut vec_dir: Vector2<f64> =
+        //                 Rotation2::new(*start_angle) * ref_axis * *radius;
+        //             {
+        //                 let mut end_angle = *end_angle;
+        //                 while end_angle > *start_angle {
+        //                     end_angle -= rad_var;
+        //                     let current = point + vec_dir;
+        //                     vec_dir = rot * vec_dir;
+        //                     lst_vec_point.push(Point2::new(current.x, current.y));
+        //                 }
+        //             }
+        //             let vec_dir: Vector2<f64> = Rotation2::new(*end_angle) * ref_axis * *radius;
+        //             let current = point + vec_dir;
+        //             lst_vec_point.push(Point2::new(current.x, current.y));
+        //         }
+        //         _ => todo!(),
+        //     };
+        // }
+        // ship.lst_vec_point = lst_vec_point;
         Ok(ship)
     }
 }
 
-impl DrawableCollection<DrawableType> for Object {
-    fn get_lst(&self) -> &Vec<DrawableType> {
-        &self.lst
-    }
-}
+// impl DrawableCollection<DrawableType> for Object {
+//     fn get_lst(&self) -> &Vec<DrawableType> {
+//         &self.lst
+//     }
+// }
 
 impl Drawable for Object {
     fn draw(

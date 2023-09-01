@@ -5,9 +5,9 @@ mod drawable;
 mod entity;
 mod game;
 
-
 // todo!("remover");
 pub use data::*;
+pub use drawable::*;
 pub use entity::*;
 
 use std::{cell::RefCell, rc::Rc};
@@ -37,7 +37,6 @@ pub fn Asteroid() -> Html {
 
     //Função de animação chamada a cada frame do navegador
     use_framerate({
-        
         let last_time = Rc::new(RefCell::new(0f64));
         let game = game.clone();
 
@@ -118,13 +117,13 @@ pub fn Asteroid() -> Html {
     html! {
         <>
             <canvas
-            oncontextmenu={prevent_context} 
-            onkeydown={k_down_event.clone()} 
-            onkeyup={k_up_event.clone()} 
-            onmousedown={m_event.clone()} 
-            onmouseup={m_event.clone()} 
-            onmousemove={m_event.clone()} 
-            style="border: 1px solid" 
+            oncontextmenu={prevent_context}
+            onkeydown={k_down_event.clone()}
+            onkeyup={k_up_event.clone()}
+            onmousedown={m_event.clone()}
+            onmouseup={m_event.clone()}
+            onmousemove={m_event.clone()}
+            style="border: 1px solid"
             tabindex="1"
             ref={canvas} width="400" height="400" />
         </>

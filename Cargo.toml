@@ -14,7 +14,9 @@ categories = ["gui", "wasm", "web-programming"]
 yew = { version = "0.20", features = ["csr"] }
 log = "0.4"
 wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4.37"
 wasm-logger = "0.2"
+gloo-net = "0.2"
 serde = "1.0.185"
 serde_json = "1.0"
 nalgebra = { version = "0.32.3", features = ["serde-serialize"] }
