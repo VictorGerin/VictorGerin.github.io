@@ -1,0 +1,5 @@
+/target/
+/dist/
+/front_page/target/
+/front_page/dist/
+/rust_server_docker/target/

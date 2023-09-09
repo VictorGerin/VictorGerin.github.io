@@ -36,7 +36,6 @@ async fn get_default() -> String {
 }
 
 async fn get_teste() -> String {
-    time::sleep(Duration::from_secs(5)).await;
     "Hello, World! Teste".to_string()
 }
 
