@@ -3,7 +3,7 @@ use super::drawable::*;
 
 use na::{Point2, Vector2};
 use wasm_bindgen::JsValue;
-use web_sys::CanvasRenderingContext2d;
+use web_sys::{WebGlProgram, WebGlRenderingContext};
 
 #[derive(Debug, Clone)]
 pub struct Entity {
@@ -81,16 +81,21 @@ impl Entity {
         self.acc = acc;
     }
 
-    pub fn draw(&self, context: &CanvasRenderingContext2d) -> Result<(), JsValue> {
-        self.draw_position(context, self.get_pos())
+    pub fn draw(
+        &self,
+        context: &WebGlRenderingContext,
+        gl_prg: &WebGlProgram,
+    ) -> Result<(), JsValue> {
+        self.draw_position(context, gl_prg, self.get_pos())
     }
 
     pub fn draw_position(
         &self,
-        context: &CanvasRenderingContext2d,
+        context: &WebGlRenderingContext,
+        gl_prg: &WebGlProgram,
         pos: Point2<f64>,
     ) -> Result<(), JsValue> {
-        self.object.draw(context, pos, self.rotation, 0.0)
+        self.object.draw(context, gl_prg, pos, self.rotation, 0.0)
     }
 
     pub fn set_pos(&mut self, new: Point2<f64>) {

@@ -1,34 +1,10 @@
 use crate::asteroid::entity::Entity;
-use nalgebra::{Vector2, Point2};
+use nalgebra::{Point2, Vector2};
 use rand::Rng;
-use wasm_bindgen::{JsCast, JsValue};
-use web_sys::{CanvasRenderingContext2d, HtmlCanvasElement};
+use wasm_bindgen::JsCast;
+use web_sys::{HtmlCanvasElement, WebGlProgram, WebGlRenderingContext};
 
-use super::data;
-
-struct ChangeColor<'a> {
-    last_color: JsValue,
-    context: &'a CanvasRenderingContext2d,
-}
-
-impl<'a> ChangeColor<'a> {
-    fn color(color: &str, context: &'a CanvasRenderingContext2d) -> Self {
-        let last_color = context.fill_style();
-        let color = JsValue::from(color);
-        context.set_fill_style(&color);
-
-        Self {
-            last_color,
-            context,
-        }
-    }
-}
-
-impl<'a> Drop for ChangeColor<'a> {
-    fn drop(&mut self) {
-        self.context.set_fill_style(&self.last_color);
-    }
-}
+use super::{data, shader};
 
 #[derive(Default, Debug)]
 pub struct MouseInput {
@@ -67,13 +43,13 @@ pub struct UserInput {
 pub struct Game {
     entities: Vec<Entity>,
     player_index: usize,
-    context: CanvasRenderingContext2d,
+    gl: WebGlRenderingContext,
     canvas_dim: Vector2<f64>,
     pub input: UserInput,
     rng: rand::rngs::ThreadRng,
     last_shoot: f64,
+    program: WebGlProgram,
 }
-
 
 trait GameLogicEntity {
     fn shoud_teleport(&self, canvas_dim: Vector2<f64>) -> bool;
@@ -100,7 +76,6 @@ impl GameLogicEntity for Entity {
     }
 
     fn process_player_acc(&mut self, mouse: Point2<f64>) {
-
         //get center of player
         let player_pos = self.get_pos_center();
 
@@ -128,22 +103,74 @@ impl GameLogicEntity for Entity {
 }
 
 impl Game {
+    fn init_web_gl_program(gl: &WebGlRenderingContext) -> WebGlProgram {
+        let vertex_shader = gl
+            .create_shader(WebGlRenderingContext::VERTEX_SHADER)
+            .unwrap();
+        gl.shader_source(&vertex_shader, shader::get_vertex_shader());
+        gl.compile_shader(&vertex_shader);
+        if !gl
+            .get_shader_parameter(&vertex_shader, WebGlRenderingContext::COMPILE_STATUS)
+            .as_bool()
+            .unwrap()
+        {
+            panic!(
+                "Erro ao compilar o vertex shader: {}",
+                gl.get_shader_info_log(&vertex_shader).unwrap()
+            );
+        }
+
+        let fragment_shader = gl
+            .create_shader(WebGlRenderingContext::FRAGMENT_SHADER)
+            .unwrap();
+        gl.shader_source(&fragment_shader, shader::get_fragment_shader());
+        gl.compile_shader(&fragment_shader);
+        if !gl
+            .get_shader_parameter(&fragment_shader, WebGlRenderingContext::COMPILE_STATUS)
+            .as_bool()
+            .unwrap()
+        {
+            panic!(
+                "Erro ao compilar o fragment shader: {}",
+                gl.get_shader_info_log(&fragment_shader).unwrap()
+            );
+        }
+        let prg = gl.create_program().unwrap();
+        gl.attach_shader(&prg, &vertex_shader);
+        gl.attach_shader(&prg, &fragment_shader);
+        gl.link_program(&prg);
+        if !gl
+            .get_program_parameter(&prg, WebGlRenderingContext::LINK_STATUS)
+            .as_bool()
+            .unwrap()
+        {
+            panic!(
+                "Erro ao linkar o programa: {}",
+                gl.get_program_info_log(&prg).unwrap()
+            );
+        }
+        prg
+    }
+
     pub fn new(canvas: HtmlCanvasElement) -> Self {
         let rng = rand::thread_rng();
 
-        let context: CanvasRenderingContext2d = canvas
-            .get_context("2d")
+        let gl: WebGlRenderingContext = canvas
+            .get_context("webgl")
             .unwrap()
             .unwrap()
-            .dyn_into::<web_sys::CanvasRenderingContext2d>()
+            .dyn_into::<web_sys::WebGlRenderingContext>()
             .unwrap();
+
+        let program = Self::init_web_gl_program(&gl);
+        gl.use_program(Some(&program));
 
         let mut person: Entity = data::get_ship()
             .try_into()
             .expect("Worng json format for Object");
 
         person.set_speed(Vector2::new(0.0, 0.0));
-        person.set_pos(Point2::new(200.0, 200.0));
+        person.set_pos(Point2::new(0.0, 0.0));
         person.set_max_speed(0.3);
         person.set_rotation(0f64.to_radians());
         person.set_delete_on_out_of_bounds(false);
@@ -152,7 +179,8 @@ impl Game {
 
         Self {
             entities,
-            context,
+            program,
+            gl,
             canvas_dim: Vector2::new(canvas.width() as f64, canvas.height() as f64),
             input: Default::default(),
             player_index: 0, //player is always the first entity
@@ -165,24 +193,23 @@ impl Game {
         self.input.mouse = input;
     }
 
-    #[allow(dead_code)]
-    fn draw_debug_point(&self, point: Point2<f64>) {
-        self.context.begin_path();
-        self.context
-            .arc(point.x, point.y, 2.0, 0.0, 2.0 * std::f64::consts::PI)
-            .unwrap();
-        self.context.fill();
-    }
-
-    #[allow(dead_code)]
-    fn draw_vector(&self, pos: Point2<f64>, vector: Vector2<f64>) {
-        self.context.begin_path();
-        self.context.move_to(pos.x, pos.y);
-        let vector = pos + vector;
-        self.context.line_to(vector.x, vector.y);
-        self.context.stroke();
-        self.draw_debug_point(vector);
-    }
+    // #[allow(dead_code)]
+    // fn draw_debug_point(&self, point: Point2<f64>) {
+    //     self.context.begin_path();
+    //     self.context
+    //         .arc(point.x, point.y, 2.0, 0.0, 2.0 * std::f64::consts::PI)
+    //         .unwrap();
+    //     self.context.fill();
+    // }
+    // #[allow(dead_code)]
+    // fn draw_vector(&self, pos: Point2<f64>, vector: Vector2<f64>) {
+    //     self.context.begin_path();
+    //     self.context.move_to(pos.x, pos.y);
+    //     let vector = pos + vector;
+    //     self.context.line_to(vector.x, vector.y);
+    //     self.context.stroke();
+    //     self.draw_debug_point(vector);
+    // }
 
     fn spawn_bullet(player: &mut Entity, input: &UserInput) -> Entity {
         let player_dim = player.get_object().dimentions().clone();
@@ -198,64 +225,64 @@ impl Game {
         bullet
     }
 
-    fn draw_text(&self, time: f64, delta: f64) {
-        let context: &CanvasRenderingContext2d = &self.context;
-        let player: &Entity = self.entities.get(self.player_index).unwrap();
+    // fn draw_text(&self, time: f64, delta: f64) {
+    //     let context: &CanvasRenderingContext2d = &self.context;
+    //     let player: &Entity = self.entities.get(self.player_index).unwrap();
 
-        let mut offset = 1.0;
-        context
-            .fill_text(
-                &format!("FPS  : {:.0}", 1.0 / (delta / 1000.0)),
-                1.0,
-                10.0 * offset,
-            )
-            .unwrap();
-        offset += 1.0;
-        context
-            .fill_text(&format!("TIME : {:.2}", time / 1000.0), 1.0, 10.0 * offset)
-            .unwrap();
-        offset += 1.0;
-        context
-            .fill_text(
-                &format!("POS  : {:?}", player.get_pos()),
-                1.0,
-                10.0 * offset,
-            )
-            .unwrap();
-        offset += 1.0;
-        context
-            .fill_text(
-                &format!("VEL  : {:?}", player.get_speed()),
-                1.0,
-                10.0 * offset,
-            )
-            .unwrap();
-        offset += 1.0;
-        context
-            .fill_text(
-                &format!("VELM : {:?}", player.get_speed().magnitude()),
-                1.0,
-                10.0 * offset,
-            )
-            .unwrap();
-        offset += 1.0;
-        context
-            .fill_text(
-                &format!("ACC  : {:?}", player.get_acc()),
-                1.0,
-                10.0 * offset,
-            )
-            .unwrap();
-        offset += 1.0;
-        context
-            .fill_text(
-                &format!("ACCM : {:?}", player.get_acc().magnitude()),
-                1.0,
-                10.0 * offset,
-            )
-            .unwrap();
-        // offset += 1.0;
-    }
+    //     let mut offset = 1.0;
+    //     context
+    //         .fill_text(
+    //             &format!("FPS  : {:.0}", 1.0 / (delta / 1000.0)),
+    //             1.0,
+    //             10.0 * offset,
+    //         )
+    //         .unwrap();
+    //     offset += 1.0;
+    //     context
+    //         .fill_text(&format!("TIME : {:.2}", time / 1000.0), 1.0, 10.0 * offset)
+    //         .unwrap();
+    //     offset += 1.0;
+    //     context
+    //         .fill_text(
+    //             &format!("POS  : {:?}", player.get_pos()),
+    //             1.0,
+    //             10.0 * offset,
+    //         )
+    //         .unwrap();
+    //     offset += 1.0;
+    //     context
+    //         .fill_text(
+    //             &format!("VEL  : {:?}", player.get_speed()),
+    //             1.0,
+    //             10.0 * offset,
+    //         )
+    //         .unwrap();
+    //     offset += 1.0;
+    //     context
+    //         .fill_text(
+    //             &format!("VELM : {:?}", player.get_speed().magnitude()),
+    //             1.0,
+    //             10.0 * offset,
+    //         )
+    //         .unwrap();
+    //     offset += 1.0;
+    //     context
+    //         .fill_text(
+    //             &format!("ACC  : {:?}", player.get_acc()),
+    //             1.0,
+    //             10.0 * offset,
+    //         )
+    //         .unwrap();
+    //     offset += 1.0;
+    //     context
+    //         .fill_text(
+    //             &format!("ACCM : {:?}", player.get_acc().magnitude()),
+    //             1.0,
+    //             10.0 * offset,
+    //         )
+    //         .unwrap();
+    //     // offset += 1.0;
+    // }
 
     fn random_point(&mut self) -> Point2<f64> {
         Point2::new(
@@ -280,8 +307,6 @@ impl Game {
 
     pub fn game_loop(&mut self, time: f64, delta: f64) {
         let player = self.entities.get_mut(self.player_index).unwrap();
-        self.context
-            .clear_rect(0f64, 0f64, self.canvas_dim.x, self.canvas_dim.y);
 
         if self.input.mouse.left {
             player.process_player_acc(self.input.mouse.pos);
@@ -339,9 +364,15 @@ impl Game {
             indexref += 1;
         }
 
+        self.gl
+            .viewport(0, 0, self.canvas_dim.x as i32, self.canvas_dim.y as i32);
+        self.gl.clear_color(1.0, 1.0, 1.0, 1.0);
+        self.gl.clear(
+            WebGlRenderingContext::COLOR_BUFFER_BIT | WebGlRenderingContext::DEPTH_BUFFER_BIT,
+        );
         // //Draw loop
         for entity in self.entities.iter() {
-            entity.draw(&self.context).unwrap();
+            entity.draw(&self.gl, &self.program).unwrap();
 
             if entity.shoud_draw_again(self.canvas_dim) {
                 let mut new_pos = entity.get_pos();
@@ -357,13 +388,15 @@ impl Game {
                     new_pos.y = diff.y;
                 }
 
-                entity.draw_position(&self.context, new_pos).unwrap();
+                entity
+                    .draw_position(&self.gl, &self.program, new_pos)
+                    .unwrap();
             }
         }
 
-        {
-            let _color = ChangeColor::color("red", &self.context);
-            self.draw_text(time, delta);
-        }
+        // {
+        //     let _color = ChangeColor::color("red", &self.context);
+        //     self.draw_text(time, delta);
+        // }
     }
 }

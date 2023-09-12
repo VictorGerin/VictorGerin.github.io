@@ -4,11 +4,12 @@ mod data;
 mod drawable;
 mod entity;
 mod game;
+mod shader;
 
-// todo!("remover");
 pub use data::*;
 pub use drawable::*;
 pub use entity::*;
+use wasm_bindgen::{prelude::Closure, JsCast, JsValue};
 
 use std::{cell::RefCell, rc::Rc};
 
@@ -30,8 +31,8 @@ pub fn Asteroid() -> Html {
         let game = game.clone();
         let canvas = canvas.clone();
         move || {
-            let canvas: HtmlCanvasElement = canvas.cast::<HtmlCanvasElement>().unwrap();
-            *game.borrow_mut() = Some(Game::new(canvas.clone()))
+            let canvas: HtmlCanvasElement = canvas.cast::<HtmlCanvasElement>().unwrap().clone();
+            *game.borrow_mut() = Some(Game::new(canvas))
         }
     });
 
@@ -70,37 +71,37 @@ pub fn Asteroid() -> Html {
         }
     };
 
-    let prevent_context = |event: MouseEvent| {
-        event.prevent_default();
-    };
+    // let prevent_context = |event: MouseEvent| {
+    //     event.prevent_default();
+    // };
 
-    let k_down_event = {
-        let game = game.clone();
-        move |event: KeyboardEvent| {
-            let mut game = game.borrow_mut();
-            let game = game.as_mut().unwrap();
+    // let k_down_event = {
+    //     let game = game.clone();
+    //     move |event: KeyboardEvent| {
+    //         let mut game = game.borrow_mut();
+    //         let game = game.as_mut().unwrap();
 
-            if event.key() == " " {
-                if let ButtonState::Pressed = game.input.keyboard.space {
-                    game.input.keyboard.space = ButtonState::Hold;
-                } else {
-                    game.input.keyboard.space = ButtonState::Pressed;
-                }
-            }
-        }
-    };
+    //         if event.key() == " " {
+    //             if let ButtonState::Pressed = game.input.keyboard.space {
+    //                 game.input.keyboard.space = ButtonState::Hold;
+    //             } else {
+    //                 game.input.keyboard.space = ButtonState::Pressed;
+    //             }
+    //         }
+    //     }
+    // };
 
-    let k_up_event = {
-        let game = game.clone();
-        move |event: KeyboardEvent| {
-            let mut game = game.borrow_mut();
-            let game = game.as_mut().unwrap();
+    // let k_up_event = {
+    //     let game = game.clone();
+    //     move |event: KeyboardEvent| {
+    //         let mut game = game.borrow_mut();
+    //         let game = game.as_mut().unwrap();
 
-            if event.key() == " " {
-                game.input.keyboard.space = ButtonState::Released;
-            }
-        }
-    };
+    //         if event.key() == " " {
+    //             game.input.keyboard.space = ButtonState::Released;
+    //         }
+    //     }
+    // };
 
     // let k_hold_event = {
     //     let game = game.clone();
@@ -117,12 +118,7 @@ pub fn Asteroid() -> Html {
     html! {
         <>
             <canvas
-            oncontextmenu={prevent_context}
-            onkeydown={k_down_event.clone()}
-            onkeyup={k_up_event.clone()}
-            onmousedown={m_event.clone()}
-            onmouseup={m_event.clone()}
-            onmousemove={m_event.clone()}
+            onmousemove={m_event}
             style="border: 1px solid"
             tabindex="1"
             ref={canvas} width="400" height="400" />

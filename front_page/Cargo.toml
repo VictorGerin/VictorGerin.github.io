@@ -33,6 +33,12 @@ features = [
     "HtmlButtonElement",
     "HtmlCanvasElement",
     'CanvasRenderingContext2d',
+    'WebGlBuffer',
+    'WebGlVertexArrayObject',
+    'WebGlRenderingContext',
+    'WebGlUniformLocation',
+    'WebGlProgram',
+    'WebGlShader',
     "MouseEvent",
     "DomRect",
 ]
