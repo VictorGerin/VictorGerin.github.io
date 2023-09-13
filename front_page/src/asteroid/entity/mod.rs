@@ -6,16 +6,6 @@ use wasm_bindgen::JsValue;
 use web_sys::WebGlRenderingContext;
 
 #[derive(Debug, Clone)]
-pub struct Entity {
-    pub object: Object,
-    pub pos: Point2<f64>,
-    pub speed: Vector2<f64>,
-    pub acc: Vector2<f64>,
-    pub rotation: f64,
-    pub delete_on_out_of_bounds: bool,
-    pub max_speed_sqr: f64,
-}
-#[derive(Debug, Clone)]
 pub struct EntityDrawable {
     pub object: ObjectDrawable,
     pub pos: Point2<f64>,
@@ -26,33 +16,18 @@ pub struct EntityDrawable {
     pub max_speed_sqr: f64,
 }
 
-impl TryFrom<&str> for Entity {
-    type Error = serde_json::Error;
-    fn try_from(data: &str) -> Result<Self, Self::Error> {
-        let ship: Object = data.try_into()?;
-        Ok(Entity {
-            object: ship,
+impl EntityDrawable {
+    pub fn load_gl(gl: &WebGlRenderingContext, json: &str) -> EntityDrawable {
+        let entity: Object = json.try_into().unwrap();
+
+        EntityDrawable {
+            object: entity.load_gl(gl),
             pos: Point2::default(),
             speed: Vector2::default(),
             rotation: Default::default(),
             acc: Vector2::default(),
             delete_on_out_of_bounds: true,
             max_speed_sqr: Default::default(),
-        })
-    }
-}
-
-impl Entity {
-    pub fn load_gl(self, gl: &WebGlRenderingContext) -> EntityDrawable {
-        let obj = self.object.load_gl(gl);
-        EntityDrawable {
-            object: obj,
-            pos: self.pos,
-            speed: self.speed,
-            rotation: self.rotation,
-            acc: self.acc,
-            delete_on_out_of_bounds: self.delete_on_out_of_bounds,
-            max_speed_sqr: self.max_speed_sqr,
         }
     }
 }
@@ -79,6 +54,6 @@ impl EntityDrawable {
         context: &WebGlRenderingContext,
         pos: Point2<f64>,
     ) -> Result<(), JsValue> {
-        self.object.draw(context, pos, self.rotation, 0.0)
+        self.object.draw(context, pos, self.rotation)
     }
 }

@@ -1,17 +1,11 @@
-use std::{
-    cell::RefCell,
-    collections::HashMap,
-    mem::size_of,
-    rc::Rc,
-    sync::{Arc, Mutex},
-};
+use std::{mem::size_of, rc::Rc};
 
 use crate::asteroid::shader;
 
 use super::*;
 use na::Point2;
 use serde::Deserialize;
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Deserialize, Debug)]
 pub struct Object {
     dimentions: Vector2<f64>,
     lst_vec_point: Vec<Point2<f64>>,
@@ -180,7 +174,6 @@ impl Drawable for ObjectDrawable {
         gl: &WebGlRenderingContext,
         offset: Point2<f64>,
         rotation: f64,
-        _: f64,
     ) -> Result<(), JsValue> {
         gl.bind_buffer(WebGlRenderingContext::ARRAY_BUFFER, Some(&self.gl_buf));
         let gl_prg = &self.prg;

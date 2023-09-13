@@ -1,10 +1,9 @@
-use crate::asteroid::entity::Entity;
 use nalgebra::{Point2, Vector2};
 use rand::Rng;
 use wasm_bindgen::JsCast;
 use web_sys::{HtmlCanvasElement, WebGlRenderingContext};
 
-use super::{data, shader, EntityDrawable};
+use super::{data, EntityDrawable};
 
 #[derive(Default, Debug)]
 pub struct MouseInput {
@@ -112,10 +111,7 @@ impl Game {
             .dyn_into::<web_sys::WebGlRenderingContext>()
             .unwrap();
 
-        let person: Entity = data::get_ship()
-            .try_into()
-            .expect("Worng json format for Object");
-        let mut person = person.load_gl(&gl);
+        let mut person = EntityDrawable::load_gl(&gl, data::get_ship());
 
         person.speed = Vector2::new(0.0, 0.0);
         person.pos = Point2::new(0.0, 0.0);
@@ -123,18 +119,7 @@ impl Game {
         person.rotation = 0f64.to_radians();
         person.delete_on_out_of_bounds = false;
 
-        let person2: Entity = data::get_ship()
-            .try_into()
-            .expect("Worng json format for Object");
-        let mut person2 = person2.load_gl(&gl);
-
-        person2.speed = Vector2::new(0.0, 0.0);
-        person2.pos = Point2::new(-1.0, 1.0);
-        person2.max_speed_sqr = 0.3;
-        person2.rotation = 0f64.to_radians();
-        person2.delete_on_out_of_bounds = false;
-
-        let entities = vec![person, person2];
+        let entities = vec![person];
 
         Self {
             entities,
@@ -151,14 +136,14 @@ impl Game {
         self.input.mouse = input;
     }
 
-    #[allow(dead_code)]
-    fn draw_debug_point(&self, point: Point2<f64>) {
-        // self.context.begin_path();
-        // self.context
-        //     .arc(point.x, point.y, 2.0, 0.0, 2.0 * std::f64::consts::PI)
-        //     .unwrap();
-        // self.context.fill();
-    }
+    // #[allow(dead_code)]
+    // fn draw_debug_point(&self, point: Point2<f64>) {
+    // self.context.begin_path();
+    // self.context
+    //     .arc(point.x, point.y, 2.0, 0.0, 2.0 * std::f64::consts::PI)
+    //     .unwrap();
+    // self.context.fill();
+    // }
 
     // #[allow(dead_code)]
     // fn draw_vector(&self, pos: Point2<f64>, vector: Vector2<f64>) {
@@ -170,15 +155,17 @@ impl Game {
     //     self.draw_debug_point(vector);
     // }
 
-    fn spawn_bullet(player: &mut EntityDrawable, input: &UserInput) -> Entity {
+    fn spawn_bullet(
+        player: &mut EntityDrawable,
+        input: &UserInput,
+        gl: &WebGlRenderingContext,
+    ) -> EntityDrawable {
         let player_dim = player.object.dimentions().clone();
         let player_pos = player.pos + player_dim / 2.0;
 
         let dir_vector = (input.mouse.pos.coords - player_pos.coords).normalize();
 
-        let mut bullet: Entity = data::get_bullet()
-            .try_into()
-            .expect("Worng json format for Object");
+        let mut bullet = EntityDrawable::load_gl(gl, data::get_bullet());
         bullet.pos = player_pos + dir_vector * 10.0;
         bullet.speed = dir_vector * 0.1;
         bullet
@@ -250,10 +237,8 @@ impl Game {
         )
     }
 
-    fn spawn_asteroid(&mut self) -> Entity {
-        let mut asteroid: Entity = data::get_asteroid()
-            .try_into()
-            .expect("Worng json format for Object");
+    fn spawn_asteroid(&mut self) -> EntityDrawable {
+        let mut asteroid = EntityDrawable::load_gl(&self.gl, data::get_asteroid());
 
         let pos = self.random_point();
         asteroid.speed = Vector2::new(0.0, 0.0);
@@ -283,15 +268,15 @@ impl Game {
 
         if self.input.mouse.right {
             if (time - self.last_shoot) > 200.0 {
-                let bullet = Game::spawn_bullet(player, &self.input);
-                self.entities.push(bullet.load_gl(&self.gl));
+                let bullet = Game::spawn_bullet(player, &self.input, &self.gl);
+                self.entities.push(bullet);
                 self.last_shoot = time;
             }
         }
 
         if let ButtonState::Pressed = self.input.keyboard.space {
             let entity = self.spawn_asteroid();
-            self.entities.push(entity.load_gl(&self.gl));
+            self.entities.push(entity);
         }
 
         let mut to_be_removed: Vec<usize> = Vec::new();
