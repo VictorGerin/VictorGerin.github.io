@@ -2,17 +2,28 @@
 
 precision mediump float;
 attribute vec2 vert_position;
-uniform float rot;
+attribute vec2 offset;
+attribute vec2 dimm;
+attribute float rot;
 
 varying vec3 fragColor;
 
-/* Math 2D Transformations */
-mat2 rotate2d(in float angle){
+mat2 rotate2d(in float angle)
+{
 	return mat2(cos(angle),-sin(angle),sin(angle),cos(angle));
 }
+
 void main()
 {
-	mat2 rotationMatrix=rotate2d(rot);
-	vec2 rotatedPosition=rotationMatrix*vert_position*.005;
-	gl_Position=vec4(rotatedPosition,0.,1.);
+	mat2 rotationMatrix = rotate2d(rot);
+	vec2 center = dimm / 2.;
+
+	vec2 pos = vert_position;
+	pos -= center;
+	pos = rotationMatrix * pos;
+	pos += center;
+
+	pos *= 0.003;
+
+	gl_Position = vec4( pos + offset, 0.0, 1.0 );
 }

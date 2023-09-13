@@ -3,17 +3,27 @@ use super::drawable::*;
 
 use na::{Point2, Vector2};
 use wasm_bindgen::JsValue;
-use web_sys::{WebGlProgram, WebGlRenderingContext};
+use web_sys::WebGlRenderingContext;
 
 #[derive(Debug, Clone)]
 pub struct Entity {
-    object: Object,
-    pos: Point2<f64>,
-    speed: Vector2<f64>,
-    acc: Vector2<f64>,
-    rotation: f64,
-    delete_on_out_of_bounds: bool,
-    max_speed_sqr: f64,
+    pub object: Object,
+    pub pos: Point2<f64>,
+    pub speed: Vector2<f64>,
+    pub acc: Vector2<f64>,
+    pub rotation: f64,
+    pub delete_on_out_of_bounds: bool,
+    pub max_speed_sqr: f64,
+}
+#[derive(Debug, Clone)]
+pub struct EntityDrawable {
+    pub object: ObjectDrawable,
+    pub pos: Point2<f64>,
+    pub speed: Vector2<f64>,
+    pub acc: Vector2<f64>,
+    pub rotation: f64,
+    pub delete_on_out_of_bounds: bool,
+    pub max_speed_sqr: f64,
 }
 
 impl TryFrom<&str> for Entity {
@@ -33,6 +43,21 @@ impl TryFrom<&str> for Entity {
 }
 
 impl Entity {
+    pub fn load_gl(self, gl: &WebGlRenderingContext) -> EntityDrawable {
+        let obj = self.object.load_gl(gl);
+        EntityDrawable {
+            object: obj,
+            pos: self.pos,
+            speed: self.speed,
+            rotation: self.rotation,
+            acc: self.acc,
+            delete_on_out_of_bounds: self.delete_on_out_of_bounds,
+            max_speed_sqr: self.max_speed_sqr,
+        }
+    }
+}
+
+impl EntityDrawable {
     pub fn update_physics(&mut self, delta: f64) {
         self.speed += self.acc * delta;
         if self.max_speed_sqr != 0.0 && self.speed.norm_squared() > self.max_speed_sqr {
@@ -41,72 +66,19 @@ impl Entity {
         self.pos += self.speed * delta;
     }
 
-    pub fn get_object(&self) -> &Object {
-        &self.object
-    }
-
-    pub fn get_pos(&self) -> Point2<f64> {
-        self.pos
-    }
-
-    pub fn set_max_speed(&mut self, speed: f64) {
-        self.max_speed_sqr = speed * speed;
-    }
-
     pub fn get_pos_center(&self) -> Point2<f64> {
-        self.get_pos() + self.get_object().dimentions() / 2.0
+        self.pos + self.object.dimentions() / 2.0
     }
 
-    pub fn set_speed(&mut self, speed: Vector2<f64>) {
-        self.speed = speed;
-    }
-
-    pub fn set_rotation(&mut self, rotation: f64) {
-        self.rotation = rotation;
-    }
-
-    pub fn get_speed(&self) -> Vector2<f64> {
-        self.speed
-    }
-
-    // pub fn get_rotation(&self) -> f64 {
-    //     self.rotation
-    // }
-
-    pub fn get_acc(&self) -> Vector2<f64> {
-        self.acc
-    }
-
-    pub fn set_acc(&mut self, acc: Vector2<f64>) {
-        self.acc = acc;
-    }
-
-    pub fn draw(
-        &self,
-        context: &WebGlRenderingContext,
-        gl_prg: &WebGlProgram,
-    ) -> Result<(), JsValue> {
-        self.draw_position(context, gl_prg, self.get_pos())
+    pub fn draw(&self, context: &WebGlRenderingContext) -> Result<(), JsValue> {
+        self.draw_position(context, self.pos)
     }
 
     pub fn draw_position(
         &self,
         context: &WebGlRenderingContext,
-        gl_prg: &WebGlProgram,
         pos: Point2<f64>,
     ) -> Result<(), JsValue> {
-        self.object.draw(context, gl_prg, pos, self.rotation, 0.0)
-    }
-
-    pub fn set_pos(&mut self, new: Point2<f64>) {
-        self.pos = new;
-    }
-
-    pub fn set_delete_on_out_of_bounds(&mut self, delete: bool) {
-        self.delete_on_out_of_bounds = delete;
-    }
-
-    pub fn get_delete_on_out_of_bounds(&self) -> bool {
-        self.delete_on_out_of_bounds
+        self.object.draw(context, pos, self.rotation, 0.0)
     }
 }

@@ -63,8 +63,13 @@ pub fn Asteroid() -> Html {
             let mut game = game.borrow_mut();
             let game = game.as_mut().unwrap();
 
+            let pos: Point2<f64> = Point2::new(
+                ((event.offset_x() * 2) as f64 / game.canvas_dim.x) - 1f64,
+                ((event.offset_y() * -2) as f64 / game.canvas_dim.y) + 1f64,
+            );
+
             game.set_mouse_input(MouseInput {
-                pos: Point2::new(event.offset_x() as f64, event.offset_y() as f64),
+                pos,
                 left: event.buttons() == 1,
                 right: event.buttons() == 2,
             });

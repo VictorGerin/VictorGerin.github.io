@@ -13,7 +13,6 @@ pub trait Drawable {
     fn draw(
         &self,
         context: &WebGlRenderingContext,
-        gl_prg: &WebGlProgram,
         offset: Point2<f64>,
         rotation: f64,
         scale: f64,
