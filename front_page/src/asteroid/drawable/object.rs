@@ -92,7 +92,7 @@ impl Object {
         let points: Vec<f32> = self
             .lst_vec_point
             .iter()
-            .flat_map(|point| vec![point.x as f32, -point.y as f32])
+            .flat_map(|point| [point.x as f32, point.y as f32])
             .collect();
 
         let points_buff = gl.create_buffer();
@@ -206,6 +206,11 @@ impl Drawable for ObjectDrawable {
             gl.get_attrib_location(gl_prg, "dimm") as u32,
             self.dimentions.x as f32,
             self.dimentions.y as f32,
+        );
+
+        gl.vertex_attrib1f(
+            gl.get_attrib_location(gl_prg, "scale") as u32,
+            self.scale as f32,
         );
 
         gl.draw_arrays(WebGlRenderingContext::LINE_LOOP, 0, self.vertex_count);

@@ -44,31 +44,32 @@ pub struct Game {
     player_index: usize,
     gl: WebGlRenderingContext,
     pub canvas_dim: Vector2<f64>,
+    pub map_dim: Vector2<f64>,
     pub input: UserInput,
     rng: rand::rngs::ThreadRng,
     last_shoot: f64,
 }
 
 trait GameLogicEntity {
-    fn shoud_teleport(&self, canvas_dim: Vector2<f64>) -> bool;
-    fn shoud_draw_again(&self, canvas_dim: Vector2<f64>) -> bool;
+    fn shoud_teleport(&self, map_dim: Vector2<f64>) -> bool;
+    fn shoud_draw_again(&self, map_dim: Vector2<f64>) -> bool;
     fn process_player_acc(&mut self, mouse: Point2<f64>);
     fn process_player_rot(&mut self, mouse: Point2<f64>);
 }
 
 impl GameLogicEntity for EntityDrawable {
-    fn shoud_teleport(&self, canvas_dim: Vector2<f64>) -> bool {
+    fn shoud_teleport(&self, map_dim: Vector2<f64>) -> bool {
         let pos = self.pos;
-        let width = canvas_dim.x;
-        let height = canvas_dim.y;
+        let width = map_dim.x;
+        let height = map_dim.y;
 
         (pos.x > width || pos.y > height) || (pos.x < 0.0 || pos.y < 0.0)
     }
 
-    fn shoud_draw_again(&self, canvas_dim: Vector2<f64>) -> bool {
+    fn shoud_draw_again(&self, map_dim: Vector2<f64>) -> bool {
         let pos = self.pos + self.object.dimentions();
-        let width = canvas_dim.x;
-        let height = canvas_dim.y;
+        let width = map_dim.x;
+        let height = map_dim.y;
 
         (pos.x > width || pos.y > height) && !self.delete_on_out_of_bounds
     }
@@ -79,7 +80,7 @@ impl GameLogicEntity for EntityDrawable {
 
         //calcule acceleration vector based on mouse position
         let dir_vector = mouse - player_pos;
-        let player_acc: Vector2<f64> = dir_vector.normalize() * 0.0001;
+        let player_acc: Vector2<f64> = dir_vector.normalize() * 0.001;
         self.acc = player_acc;
     }
 
@@ -89,7 +90,7 @@ impl GameLogicEntity for EntityDrawable {
         let dir_vector = mouse - player_pos;
         //calcule rotation based on mouse position
         let rotation = {
-            let rotation = Vector2::new(0.0, -1.0).angle(&dir_vector.coords);
+            let rotation = (dir_vector.y / dir_vector.coords.norm()).acos();
             if dir_vector.x < 0.0 {
                 -rotation
             } else {
@@ -114,9 +115,9 @@ impl Game {
         let mut person = EntityDrawable::load_gl(&gl, data::get_ship());
 
         person.speed = Vector2::new(0.0, 0.0);
-        person.pos = Point2::new(0.0, 0.0);
+        person.pos = Point2::new(500.0, -500.0);
         person.max_speed_sqr = 0.3;
-        person.rotation = 0f64.to_radians();
+        person.rotation = 90f64.to_radians();
         person.delete_on_out_of_bounds = false;
 
         let entities = vec![person];
@@ -125,6 +126,7 @@ impl Game {
             entities,
             gl,
             canvas_dim: Vector2::new(canvas.width() as f64, canvas.height() as f64),
+            map_dim: Vector2::new(2000.0, 2000.0),
             input: Default::default(),
             player_index: 0, //player is always the first entity
             rng,
@@ -132,7 +134,11 @@ impl Game {
         }
     }
 
-    pub fn set_mouse_input(&mut self, input: MouseInput) {
+    pub fn set_mouse_input(&mut self, mut input: MouseInput) {
+        input.pos = Point2::new(
+            2f64 * input.pos.x / self.canvas_dim.x - 1f64,
+            -2f64 * input.pos.y / self.canvas_dim.y + 1f64,
+        ) * 1000f64;
         self.input.mouse = input;
     }
 
@@ -172,8 +178,8 @@ impl Game {
     }
 
     // fn draw_text(&self, time: f64, delta: f64) {
-    //     let context: &CanvasRenderingContext2d = &self.context;
-    //     let player: &Entity = self.entities.get(self.player_index).unwrap();
+    //     let context: &CanvasRenderingContext2d = &self.context2d;
+    //     let player: &EntityDrawable = self.entities.get(self.player_index).unwrap();
 
     //     let mut offset = 1.0;
     //     context
@@ -189,40 +195,28 @@ impl Game {
     //         .unwrap();
     //     offset += 1.0;
     //     context
+    //         .fill_text(&format!("POS  : {:?}", player.pos), 1.0, 10.0 * offset)
+    //         .unwrap();
+    //     offset += 1.0;
+    //     context
+    //         .fill_text(&format!("VEL  : {:?}", player.speed), 1.0, 10.0 * offset)
+    //         .unwrap();
+    //     offset += 1.0;
+    //     context
     //         .fill_text(
-    //             &format!("POS  : {:?}", player.get_pos()),
+    //             &format!("VELM : {:?}", player.speed.magnitude()),
     //             1.0,
     //             10.0 * offset,
     //         )
     //         .unwrap();
     //     offset += 1.0;
     //     context
-    //         .fill_text(
-    //             &format!("VEL  : {:?}", player.get_speed()),
-    //             1.0,
-    //             10.0 * offset,
-    //         )
+    //         .fill_text(&format!("ACC  : {:?}", player.acc), 1.0, 10.0 * offset)
     //         .unwrap();
     //     offset += 1.0;
     //     context
     //         .fill_text(
-    //             &format!("VELM : {:?}", player.get_speed().magnitude()),
-    //             1.0,
-    //             10.0 * offset,
-    //         )
-    //         .unwrap();
-    //     offset += 1.0;
-    //     context
-    //         .fill_text(
-    //             &format!("ACC  : {:?}", player.get_acc()),
-    //             1.0,
-    //             10.0 * offset,
-    //         )
-    //         .unwrap();
-    //     offset += 1.0;
-    //     context
-    //         .fill_text(
-    //             &format!("ACCM : {:?}", player.get_acc().magnitude()),
+    //             &format!("ACCM : {:?}", player.acc.magnitude()),
     //             1.0,
     //             10.0 * offset,
     //         )
@@ -232,8 +226,8 @@ impl Game {
 
     fn random_point(&mut self) -> Point2<f64> {
         Point2::new(
-            self.rng.gen_range(0.0..self.canvas_dim.x),
-            self.rng.gen_range(0.0..self.canvas_dim.y),
+            self.rng.gen_range(0.0..self.map_dim.x),
+            self.rng.gen_range(0.0..self.map_dim.y),
         )
     }
 
@@ -252,15 +246,20 @@ impl Game {
     pub fn game_loop(&mut self, time: f64, delta: f64) {
         let player = self.entities.get_mut(self.player_index).unwrap();
 
-        // if self.input.mouse.left {
-        //     player.process_player_acc(self.input.mouse.pos);
-        // } else if player.get_speed().magnitude() > 0.001 {
-        //     let arrasto: Vector2<f64> = player.get_speed().normalize() * -0.00007;
-        //     player.set_acc(arrasto);
-        // } else {
-        //     player.set_acc(Vector2::default());
-        //     player.set_speed(Vector2::default());
-        // }
+        // log::info!("mouse: {:?}", self.input.mouse.pos);
+
+        // player.pos += Vector2::new(1.0, 0.0);
+        // player.rotation += 0.1;
+
+        if self.input.mouse.left {
+            player.process_player_acc(self.input.mouse.pos);
+        } else if player.speed.magnitude() > 0.001 {
+            let arrasto: Vector2<f64> = player.speed.normalize() * -0.00007;
+            player.acc = arrasto;
+        } else {
+            player.acc = Vector2::default();
+            player.speed = Vector2::default();
+        }
 
         if self.input.mouse.left || self.input.mouse.right {
             player.process_player_rot(self.input.mouse.pos);
@@ -285,13 +284,13 @@ impl Game {
         for (i, entity) in self.entities.iter_mut().enumerate() {
             entity.update_physics(delta);
 
-            if entity.shoud_teleport(self.canvas_dim) {
+            if entity.shoud_teleport(self.map_dim) {
                 let mut new_pos = entity.pos.clone();
 
-                new_pos += self.canvas_dim;
+                new_pos += self.map_dim;
 
-                new_pos.x = new_pos.x % self.canvas_dim.x as f64;
-                new_pos.y = new_pos.y % self.canvas_dim.y as f64;
+                new_pos.x = new_pos.x % self.map_dim.x as f64;
+                new_pos.y = new_pos.y % self.map_dim.y as f64;
 
                 entity.pos = new_pos.coords.abs().into();
 
@@ -318,26 +317,25 @@ impl Game {
         for entity in self.entities.iter() {
             entity.draw(&self.gl).unwrap();
 
-            if entity.shoud_draw_again(self.canvas_dim) {
-                let mut new_pos = entity.pos;
-                let size = entity.object.dimentions().clone();
+            // if entity.shoud_draw_again(self.map_dim) {
+            //     let mut new_pos = entity.pos;
+            //     let size = entity.object.dimentions().clone();
 
-                let diff = new_pos - self.canvas_dim;
+            //     let diff = new_pos - self.map_dim;
 
-                if diff.x > -size.x {
-                    new_pos.x = diff.x;
-                }
+            //     if diff.x > -size.x {
+            //         new_pos.x = diff.x;
+            //     }
 
-                if diff.y > -size.y {
-                    new_pos.y = diff.y;
-                }
+            //     if diff.y > -size.y {
+            //         new_pos.y = diff.y;
+            //     }
 
-                entity.draw_position(&self.gl, new_pos).unwrap();
-            }
+            //     entity.draw_position(&self.gl, new_pos).unwrap();
+            // }
         }
 
         // {
-        //     let _color = ChangeColor::color("red", &self.context);
         //     self.draw_text(time, delta);
         // }
     }
