@@ -3,16 +3,36 @@ use std::{mem::size_of, rc::Rc};
 use crate::asteroid::shader;
 
 use super::*;
-use na::Point2;
+use na::{Matrix3x2, Point2, Vector1, Vector3};
 use serde::Deserialize;
+
+#[derive(Deserialize, Debug, Clone)]
+pub enum DrawMode {
+    LineLoop,
+    TriangleFan,
+    TriangleStrip,
+    Lines,
+    Triangles,
+    Points,
+}
+
+impl Default for DrawMode {
+    fn default() -> Self {
+        Self::LineLoop
+    }
+}
+
 #[derive(Deserialize, Debug)]
 pub struct Object {
     dimentions: Vector2<f64>,
     lst_vec_point: Vec<Point2<f64>>,
+    lst_hit_box: Vec<Matrix3x2<f64>>,
     #[serde(default)]
     scale: f64,
     #[serde(default)]
     buff_loc: Option<usize>,
+    #[serde(default)]
+    draw_mode: DrawMode,
 }
 
 //afim de evitar que o programa seja compilado varias vezes e o mesmo espaço de memoria seja alocado na placa de video
@@ -22,11 +42,13 @@ static mut GL_BUF: Option<Vec<Option<Rc<WebGlBuffer>>>> = None;
 
 #[derive(Debug, Clone)]
 pub struct ObjectDrawable {
+    lst_hit_box: Vec<Matrix3x2<f64>>,
     dimentions: Vector2<f64>,
     scale: f64,
     prg: Rc<WebGlProgram>,
     gl_buf: Rc<WebGlBuffer>,
     vertex_count: i32,
+    draw_mode: DrawMode,
 }
 
 impl Object {
@@ -145,11 +167,13 @@ impl Object {
         let gl_buf = self.init_buff(gl);
 
         ObjectDrawable {
+            lst_hit_box: self.lst_hit_box,
             dimentions: self.dimentions,
             scale: self.scale,
             prg,
             gl_buf,
             vertex_count: self.lst_vec_point.len() as i32,
+            draw_mode: self.draw_mode,
         }
     }
 }
@@ -166,6 +190,21 @@ impl ObjectDrawable {
     pub fn dimentions(&self) -> Vector2<f64> {
         self.dimentions * self.scale
     }
+
+    fn triagle_hit(t1: Matrix3x2<f64>, t2: Matrix3x2<f64>) -> bool {
+        false
+    }
+
+    pub fn hit(&self, other: &ObjectDrawable) -> bool {
+        for triagle in self.lst_hit_box.iter() {
+            for other_triagle in other.lst_hit_box.iter() {
+                if ObjectDrawable::triagle_hit(*triagle, *other_triagle) {
+                    return true;
+                }
+            }
+        }
+        false
+    }
 }
 
 impl Drawable for ObjectDrawable {
@@ -174,6 +213,7 @@ impl Drawable for ObjectDrawable {
         gl: &WebGlRenderingContext,
         offset: Point2<f64>,
         rotation: f64,
+        color: Vector3<f64>,
     ) -> Result<(), JsValue> {
         gl.bind_buffer(WebGlRenderingContext::ARRAY_BUFFER, Some(&self.gl_buf));
         let gl_prg = &self.prg;
@@ -213,7 +253,22 @@ impl Drawable for ObjectDrawable {
             self.scale as f32,
         );
 
-        gl.draw_arrays(WebGlRenderingContext::LINE_LOOP, 0, self.vertex_count);
+        gl.vertex_attrib3f(
+            gl.get_attrib_location(&gl_prg, "color") as u32,
+            color.x as f32,
+            color.y as f32,
+            color.z as f32,
+        );
+
+        match self.draw_mode {
+            DrawMode::LineLoop => {
+                gl.draw_arrays(WebGlRenderingContext::LINE_LOOP, 0, self.vertex_count)
+            }
+            DrawMode::TriangleFan => {
+                gl.draw_arrays(WebGlRenderingContext::TRIANGLE_FAN, 0, self.vertex_count)
+            }
+            _ => gl.draw_arrays(WebGlRenderingContext::LINE_LOOP, 0, self.vertex_count),
+        }
 
         // context.begin_path();
 

@@ -9,6 +9,7 @@ mod shader;
 pub use data::*;
 pub use drawable::*;
 pub use entity::*;
+use wasm_bindgen::{prelude::Closure, JsCast};
 
 use std::{cell::RefCell, rc::Rc};
 
@@ -62,11 +63,40 @@ pub fn Asteroid() -> Html {
             let mut game = game.borrow_mut();
             let game = game.as_mut().unwrap();
 
-            game.set_mouse_input(MouseInput {
-                pos: Point2::new(event.offset_x() as f64, event.offset_y() as f64),
-                left: event.buttons() == 1,
-                right: event.buttons() == 2,
-            });
+            game.input.mouse.pos = Point2::new(event.offset_x() as f64, event.offset_y() as f64);
+            game.update_input();
+        }
+    };
+
+    let m_down_event = {
+        let game = game.clone();
+        move |event: MouseEvent| {
+            let mut game = game.borrow_mut();
+            let game = game.as_mut().unwrap();
+
+            game.input.mouse.pos = Point2::new(event.offset_x() as f64, event.offset_y() as f64);
+            match event.button() {
+                0 => game.input.mouse.left = true,
+                2 => game.input.mouse.right = true,
+                _ => {}
+            }
+            game.update_input();
+        }
+    };
+
+    let m_up_event = {
+        let game = game.clone();
+        move |event: MouseEvent| {
+            let mut game = game.borrow_mut();
+            let game = game.as_mut().unwrap();
+
+            game.input.mouse.pos = Point2::new(event.offset_x() as f64, event.offset_y() as f64);
+            match event.button() {
+                0 => game.input.mouse.left = false,
+                2 => game.input.mouse.right = false,
+                _ => {}
+            }
+            game.update_input();
         }
     };
 
@@ -107,25 +137,61 @@ pub fn Asteroid() -> Html {
     //     move |event: KeyboardEvent| {
     //         let mut game = game.borrow_mut();
     //         let game = game.as_mut().unwrap();
-
     //         if event.key() == " " {
     //             game.input.keyboard.space = ButtonState::Hold;
     //         }
     //     }
     // };
 
+    use_effect({
+        let k_down_event: Closure<dyn Fn(KeyboardEvent)> = Closure::wrap(Box::new(k_down_event));
+        move || {
+            window()
+                .unwrap()
+                .add_event_listener_with_callback("keydown", k_down_event.as_ref().unchecked_ref())
+                .unwrap();
+
+            move || {
+                window()
+                    .unwrap()
+                    .remove_event_listener_with_callback(
+                        "keydown",
+                        k_down_event.as_ref().unchecked_ref(),
+                    )
+                    .unwrap();
+            }
+        }
+    });
+
+    use_effect({
+        let k_up_event: Closure<dyn Fn(KeyboardEvent)> = Closure::wrap(Box::new(k_up_event));
+        move || {
+            window()
+                .unwrap()
+                .add_event_listener_with_callback("keyup", k_up_event.as_ref().unchecked_ref())
+                .unwrap();
+
+            move || {
+                window()
+                    .unwrap()
+                    .remove_event_listener_with_callback(
+                        "keyup",
+                        k_up_event.as_ref().unchecked_ref(),
+                    )
+                    .unwrap();
+            }
+        }
+    });
+
     html! {
         <>
             <canvas
             oncontextmenu={prevent_context}
-            onkeydown={k_down_event.clone()}
-            onkeyup={k_up_event.clone()}
-            onmousedown={m_event.clone()}
-            onmouseup={m_event.clone()}
+            onmousedown={m_down_event.clone()}
+            onmouseup={m_up_event.clone()}
             onmousemove={m_event.clone()}
             style="border: 1px solid"
-            tabindex="1"
-            ref={canvas} width="400" height="400" />
+            ref={canvas} width="600" height="600" />
         </>
     }
 }

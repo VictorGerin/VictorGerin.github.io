@@ -1,7 +1,7 @@
 extern crate nalgebra as na;
 use super::drawable::*;
 
-use na::{Point2, Vector2};
+use na::{Point2, Vector2, Vector3};
 use wasm_bindgen::JsValue;
 use web_sys::WebGlRenderingContext;
 
@@ -11,6 +11,7 @@ pub struct EntityDrawable {
     pub pos: Point2<f64>,
     pub speed: Vector2<f64>,
     pub acc: Vector2<f64>,
+    pub color: Vector3<f64>,
     pub rotation: f64,
     pub delete_on_out_of_bounds: bool,
     pub max_speed_sqr: f64,
@@ -28,6 +29,7 @@ impl EntityDrawable {
             acc: Vector2::default(),
             delete_on_out_of_bounds: true,
             max_speed_sqr: Default::default(),
+            color: Vector3::new(1.0, 0.0, 1.0),
         }
     }
 }
@@ -54,6 +56,6 @@ impl EntityDrawable {
         context: &WebGlRenderingContext,
         pos: Point2<f64>,
     ) -> Result<(), JsValue> {
-        self.object.draw(context, pos, self.rotation)
+        self.object.draw(context, pos, self.rotation, self.color)
     }
 }

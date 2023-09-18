@@ -6,6 +6,7 @@ attribute vec2 offset;
 attribute vec2 dimm;
 attribute float rot;
 attribute float scale;
+attribute vec3 color;
 
 varying vec3 fragColor;
 
@@ -16,6 +17,7 @@ mat2 rotate2d(in float angle)
 
 void main()
 {
+	fragColor = color;
 	mat2 rotationMatrix = rotate2d(rot);
 	
 	vec2 pos = vert_position;

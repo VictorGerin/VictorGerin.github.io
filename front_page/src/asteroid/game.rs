@@ -1,9 +1,84 @@
-use nalgebra::{Point2, Vector2};
-use rand::Rng;
-use wasm_bindgen::JsCast;
-use web_sys::{HtmlCanvasElement, WebGlRenderingContext};
+use std::mem::size_of;
 
-use super::{data, EntityDrawable};
+use nalgebra::{Point2, Rotation2, Vector2, Vector3};
+use rand::Rng;
+use wasm_bindgen::{JsCast, JsValue};
+use web_sys::{HtmlCanvasElement, WebGlBuffer, WebGlProgram, WebGlRenderingContext};
+
+use super::{data, shader, EntityDrawable};
+
+pub struct TesteDraw {
+    prg: WebGlProgram,
+    gl_buf: WebGlBuffer,
+    count: i32,
+    mode: u32,
+    psize: f32,
+    vertex_pos: u32,
+    point_size: u32,
+}
+
+impl TesteDraw {
+    pub fn new(gl: &WebGlRenderingContext, vertices: &[f32], mode: u32, psize: f32) -> Self {
+        let prg = gl.create_program().unwrap();
+
+        let vertex_shader = gl
+            .create_shader(WebGlRenderingContext::VERTEX_SHADER)
+            .unwrap();
+        gl.shader_source(&vertex_shader, shader::get_vertex_shader_teste());
+        gl.compile_shader(&vertex_shader);
+
+        let fragment_shader = gl
+            .create_shader(WebGlRenderingContext::FRAGMENT_SHADER)
+            .unwrap();
+        gl.shader_source(&fragment_shader, shader::get_fragment_shader_teste());
+        gl.compile_shader(&fragment_shader);
+
+        gl.attach_shader(&prg, &vertex_shader);
+        gl.attach_shader(&prg, &fragment_shader);
+        gl.link_program(&prg);
+
+        let gl_buf = gl.create_buffer().unwrap();
+        gl.bind_buffer(WebGlRenderingContext::ARRAY_BUFFER, Some(&gl_buf));
+        unsafe {
+            let vert_array = js_sys::Float32Array::view(vertices);
+            gl.buffer_data_with_array_buffer_view(
+                WebGlRenderingContext::ARRAY_BUFFER,
+                &vert_array,
+                WebGlRenderingContext::STATIC_DRAW,
+            );
+        }
+
+        Self {
+            mode,
+            psize,
+            vertex_pos: gl.get_attrib_location(&prg, "vert_position") as u32,
+            point_size: gl.get_attrib_location(&prg, "pointSize") as u32,
+            prg,
+            gl_buf,
+            count: vertices.len() as i32 / 2,
+        }
+    }
+
+    pub fn draw(&self, gl: &WebGlRenderingContext) {
+        gl.use_program(Some(&self.prg));
+
+        gl.bind_buffer(WebGlRenderingContext::ARRAY_BUFFER, Some(&self.gl_buf));
+
+        gl.vertex_attrib_pointer_with_i32(
+            self.vertex_pos,
+            2,
+            WebGlRenderingContext::FLOAT,
+            false,
+            2 * size_of::<f32>() as i32,
+            0,
+        );
+        gl.enable_vertex_attrib_array(self.vertex_pos);
+
+        gl.vertex_attrib1f(self.point_size, self.psize);
+
+        gl.draw_arrays(self.mode, 0, self.count);
+    }
+}
 
 #[derive(Default, Debug)]
 pub struct MouseInput {
@@ -48,32 +123,19 @@ pub struct Game {
     pub input: UserInput,
     rng: rand::rngs::ThreadRng,
     last_shoot: f64,
+
+    teste: TesteDraw,
 }
 
 trait GameLogicEntity {
-    fn shoud_teleport(&self, map_dim: Vector2<f64>) -> bool;
-    fn shoud_draw_again(&self, map_dim: Vector2<f64>) -> bool;
     fn process_player_acc(&mut self, mouse: Point2<f64>);
     fn process_player_rot(&mut self, mouse: Point2<f64>);
+    fn process_teleport(&mut self);
+    fn process_redraw(&self, gl: &WebGlRenderingContext) -> Result<(), JsValue>;
+    fn shoud_delete(&self) -> bool;
 }
 
 impl GameLogicEntity for EntityDrawable {
-    fn shoud_teleport(&self, map_dim: Vector2<f64>) -> bool {
-        let pos = self.pos;
-        let width = map_dim.x;
-        let height = map_dim.y;
-
-        (pos.x > width || pos.y > height) || (pos.x < 0.0 || pos.y < 0.0)
-    }
-
-    fn shoud_draw_again(&self, map_dim: Vector2<f64>) -> bool {
-        let pos = self.pos + self.object.dimentions();
-        let width = map_dim.x;
-        let height = map_dim.y;
-
-        (pos.x > width || pos.y > height) && !self.delete_on_out_of_bounds
-    }
-
     fn process_player_acc(&mut self, mouse: Point2<f64>) {
         //get center of player
         let player_pos = self.get_pos_center();
@@ -89,7 +151,7 @@ impl GameLogicEntity for EntityDrawable {
         let player_pos = self.pos.coords + self.object.dimentions() / 2.0;
         let dir_vector = mouse - player_pos;
         //calcule rotation based on mouse position
-        let rotation = {
+        self.rotation = {
             let rotation = (dir_vector.y / dir_vector.coords.norm()).acos();
             if dir_vector.x < 0.0 {
                 -rotation
@@ -97,7 +159,47 @@ impl GameLogicEntity for EntityDrawable {
                 rotation
             }
         };
-        self.rotation = rotation;
+    }
+
+    fn process_teleport(&mut self) {
+        if self.pos.x > 1000.0 {
+            self.pos.x = -1000.0;
+        } else if self.pos.x < -1000.0 {
+            self.pos.x = 1000.0;
+        }
+        if self.pos.y > 1000.0 {
+            self.pos.y = -1000.0;
+        } else if self.pos.y < -1000.0 {
+            self.pos.y = 1000.0;
+        }
+    }
+
+    fn process_redraw(&self, gl: &WebGlRenderingContext) -> Result<(), JsValue> {
+        let dimm = self.object.dimentions();
+        let mut pos = self.pos;
+        if self.pos.x + dimm.x > 1000.0 {
+            pos.x -= 2000.0;
+            self.draw_position(gl, pos)?
+        }
+        if self.pos.y + dimm.y > 1000.0 {
+            pos.y -= 2000.0;
+            self.draw_position(gl, pos)?
+        }
+        Ok(())
+    }
+
+    fn shoud_delete(&self) -> bool {
+        if self.pos.x > 1000.0 {
+            return true;
+        } else if self.pos.x < -1000.0 {
+            return true;
+        }
+        if self.pos.y > 1000.0 {
+            return true;
+        } else if self.pos.y < -1000.0 {
+            return true;
+        }
+        false
     }
 }
 
@@ -115,12 +217,23 @@ impl Game {
         let mut person = EntityDrawable::load_gl(&gl, data::get_ship());
 
         person.speed = Vector2::new(0.0, 0.0);
-        person.pos = Point2::new(500.0, -500.0);
+        person.pos = Point2::new(0.0, 0.0);
         person.max_speed_sqr = 0.3;
-        person.rotation = 90f64.to_radians();
+        person.rotation = 0f64.to_radians();
         person.delete_on_out_of_bounds = false;
 
-        let entities = vec![person];
+        let mut person2 = EntityDrawable::load_gl(&gl, data::get_ship());
+
+        person2.speed = Vector2::new(0.0, 0.0);
+        person2.pos = Point2::new(30.0, 10.0);
+        person2.max_speed_sqr = 0.3;
+        person2.rotation = 0f64.to_radians();
+        person2.delete_on_out_of_bounds = false;
+
+        let entities = vec![person, person2];
+
+        let data = [-1.0, 0.0, 1.0, 0.0, 0.0, -1.0, 0.0, 1.0];
+        let teste = TesteDraw::new(&gl, &data, WebGlRenderingContext::LINES, 0f32);
 
         Self {
             entities,
@@ -131,49 +244,58 @@ impl Game {
             player_index: 0, //player is always the first entity
             rng,
             last_shoot: 0.0,
+            teste,
         }
     }
 
-    pub fn set_mouse_input(&mut self, mut input: MouseInput) {
-        input.pos = Point2::new(
-            2f64 * input.pos.x / self.canvas_dim.x - 1f64,
-            -2f64 * input.pos.y / self.canvas_dim.y + 1f64,
-        ) * 1000f64;
-        self.input.mouse = input;
+    pub fn update_input(&mut self) {
+        let offset_center: Vector2<f64> = Vector2::new(0.5, 0.5);
+
+        let mut pos: Vector2<f64> =
+            self.input.mouse.pos.coords.component_div(&self.canvas_dim) - offset_center;
+
+        pos.y *= -1.0;
+        self.input.mouse.pos = pos.component_mul(&self.map_dim).into();
     }
 
-    // #[allow(dead_code)]
-    // fn draw_debug_point(&self, point: Point2<f64>) {
-    // self.context.begin_path();
-    // self.context
-    //     .arc(point.x, point.y, 2.0, 0.0, 2.0 * std::f64::consts::PI)
-    //     .unwrap();
-    // self.context.fill();
-    // }
+    #[allow(dead_code)]
+    fn draw_debug_point(gl: &WebGlRenderingContext, point: &Point2<f64>) {
+        let mut bullet = EntityDrawable::load_gl(&gl, data::get_bullet());
+        bullet.pos = point.clone();
+        bullet.draw(&gl).unwrap();
+    }
 
-    // #[allow(dead_code)]
-    // fn draw_vector(&self, pos: Point2<f64>, vector: Vector2<f64>) {
-    //     self.context.begin_path();
-    //     self.context.move_to(pos.x, pos.y);
-    //     let vector = pos + vector;
-    //     self.context.line_to(vector.x, vector.y);
-    //     self.context.stroke();
-    //     self.draw_debug_point(vector);
-    // }
+    #[allow(dead_code)]
+    fn draw_vector(&self) {
+        let t = TesteDraw::new(&self.gl, &[0.5, 0.5], WebGlRenderingContext::POINTS, 20.0);
+        t.draw(&self.gl);
+        // self.context.begin_path();
+        // self.context.move_to(pos.x, pos.y);
+        // let vector = pos + vector;
+        // self.context.line_to(vector.x, vector.y);
+        // self.context.stroke();
+        // self.draw_debug_point(vector);
+    }
 
     fn spawn_bullet(
-        player: &mut EntityDrawable,
+        player: &EntityDrawable,
         input: &UserInput,
         gl: &WebGlRenderingContext,
     ) -> EntityDrawable {
-        let player_dim = player.object.dimentions().clone();
-        let player_pos = player.pos + player_dim / 2.0;
+        let nav_center: Vector2<f64> = player.get_pos_center().coords;
+        let rot = Rotation2::new(-player.rotation);
+        let up = rot * (Vector2::y() * player.object.dimentions().y / 2.0);
 
+        let coors = nav_center + up;
+
+        let player_dim = player.object.dimentions();
+        let player_pos = player.pos + player_dim / 2.0;
         let dir_vector = (input.mouse.pos.coords - player_pos.coords).normalize();
 
         let mut bullet = EntityDrawable::load_gl(gl, data::get_bullet());
-        bullet.pos = player_pos + dir_vector * 10.0;
-        bullet.speed = dir_vector * 0.1;
+        bullet.delete_on_out_of_bounds = true;
+        bullet.pos = (coors - bullet.object.dimentions() / 2.0).into();
+        bullet.speed = dir_vector * 1.0 + player.speed;
         bullet
     }
 
@@ -244,29 +366,36 @@ impl Game {
     }
 
     pub fn game_loop(&mut self, time: f64, delta: f64) {
-        let player = self.entities.get_mut(self.player_index).unwrap();
+        // self.gl
+        //     .viewport(0, 0, self.canvas_dim.x as i32, self.canvas_dim.y as i32);
+        self.gl.clear_color(1.0, 1.0, 1.0, 1.0);
+        self.gl.clear(
+            WebGlRenderingContext::COLOR_BUFFER_BIT | WebGlRenderingContext::DEPTH_BUFFER_BIT,
+        );
 
-        // log::info!("mouse: {:?}", self.input.mouse.pos);
+        // self.draw_vector();
+        // self.teste.draw(&self.gl);
 
-        // player.pos += Vector2::new(1.0, 0.0);
-        // player.rotation += 0.1;
+        {
+            let player = self.entities.get_mut(self.player_index).unwrap();
+            if self.input.mouse.left {
+                player.process_player_acc(self.input.mouse.pos);
+            } else if player.speed.magnitude() > 0.001 {
+                let arrasto: Vector2<f64> = player.speed.normalize() * -0.00007;
+                player.acc = arrasto;
+            } else {
+                player.acc = Vector2::default();
+                player.speed = Vector2::default();
+            }
 
-        if self.input.mouse.left {
-            player.process_player_acc(self.input.mouse.pos);
-        } else if player.speed.magnitude() > 0.001 {
-            let arrasto: Vector2<f64> = player.speed.normalize() * -0.00007;
-            player.acc = arrasto;
-        } else {
-            player.acc = Vector2::default();
-            player.speed = Vector2::default();
-        }
-
-        if self.input.mouse.left || self.input.mouse.right {
-            player.process_player_rot(self.input.mouse.pos);
+            if self.input.mouse.left || self.input.mouse.right {
+                player.process_player_rot(self.input.mouse.pos);
+            }
         }
 
         if self.input.mouse.right {
             if (time - self.last_shoot) > 200.0 {
+                let player = self.entities.get(self.player_index).unwrap();
                 let bullet = Game::spawn_bullet(player, &self.input, &self.gl);
                 self.entities.push(bullet);
                 self.last_shoot = time;
@@ -278,61 +407,42 @@ impl Game {
             self.entities.push(entity);
         }
 
-        let mut to_be_removed: Vec<usize> = Vec::new();
-
         //physics loop
-        for (i, entity) in self.entities.iter_mut().enumerate() {
+        for entity in self.entities.iter_mut() {
             entity.update_physics(delta);
+        }
 
-            if entity.shoud_teleport(self.map_dim) {
-                let mut new_pos = entity.pos.clone();
+        self.entities = self
+            .entities
+            .iter()
+            .filter(|x| !x.delete_on_out_of_bounds || !x.shoud_delete())
+            .cloned()
+            .collect();
 
-                new_pos += self.map_dim;
+        for entity in self.entities.iter_mut() {
+            entity.process_teleport();
+        }
 
-                new_pos.x = new_pos.x % self.map_dim.x as f64;
-                new_pos.y = new_pos.y % self.map_dim.y as f64;
-
-                entity.pos = new_pos.coords.abs().into();
-
-                if entity.delete_on_out_of_bounds {
-                    to_be_removed.push(i);
-                }
+        for i in 0..self.entities.len() {
+            for j in (i + 1)..self.entities.len() {
+                // let other = &self.entities[j];
+                // self.entities[i].process_collision(other);
+                let color = {
+                    if self.entities[i].object.hit(&self.entities[j].object) {
+                        Vector3::new(1.0, 0.0, 0.0)
+                    } else {
+                        Vector3::new(1.0, 0.0, 1.0)
+                    }
+                };
+                self.entities.get_mut(i).unwrap().color = color;
+                self.entities.get_mut(j).unwrap().color = color;
             }
         }
 
-        //after each remove the index of the next element is reduced by 1
-        let mut indexref: usize = 0;
-        for i in to_be_removed {
-            self.entities.remove(i - indexref);
-            indexref += 1;
-        }
-
-        self.gl
-            .viewport(0, 0, self.canvas_dim.x as i32, self.canvas_dim.y as i32);
-        self.gl.clear_color(1.0, 1.0, 1.0, 1.0);
-        self.gl.clear(
-            WebGlRenderingContext::COLOR_BUFFER_BIT | WebGlRenderingContext::DEPTH_BUFFER_BIT,
-        );
         // //Draw loop
         for entity in self.entities.iter() {
             entity.draw(&self.gl).unwrap();
-
-            // if entity.shoud_draw_again(self.map_dim) {
-            //     let mut new_pos = entity.pos;
-            //     let size = entity.object.dimentions().clone();
-
-            //     let diff = new_pos - self.map_dim;
-
-            //     if diff.x > -size.x {
-            //         new_pos.x = diff.x;
-            //     }
-
-            //     if diff.y > -size.y {
-            //         new_pos.y = diff.y;
-            //     }
-
-            //     entity.draw_position(&self.gl, new_pos).unwrap();
-            // }
+            entity.process_redraw(&self.gl).unwrap();
         }
 
         // {
