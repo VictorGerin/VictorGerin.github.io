@@ -1,0 +1,201 @@
+Date : 2023-09-18 20:19:50
+Directory : c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page
+Total : 156 files,  119282 codes, 2104 comments, 9844 blanks, all 131230 lines
+
+Languages
++------------+------------+------------+------------+------------+------------+
+| language   | files      | code       | comment    | blank      | total      |
++------------+------------+------------+------------+------------+------------+
+| JavaScript |        142 |    119,095 |      2,100 |      9,800 |    130,995 |
+| Rust       |          6 |        214 |          5 |         44 |        263 |
+| GLSL       |          6 |         15 |          0 |          6 |         21 |
+| JSON       |          1 |         14 |          0 |          0 |         14 |
+| CSS        |          1 |        -56 |         -1 |         -6 |        -63 |
++------------+------------+------------+------------+------------+------------+
+
+Directories
++---------------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                                                  | files      | code       | comment    | blank      | total      |
++---------------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                                                     |        156 |    119,282 |      2,104 |      9,844 |    131,230 |
+| dist                                                                                                                                  |          3 |        -56 |         -1 |         -6 |        -63 |
+| dist (Files)                                                                                                                          |          2 |          0 |          0 |          0 |          0 |
+| dist\.stage                                                                                                                           |          1 |        -56 |         -1 |         -6 |        -63 |
+| src                                                                                                                                   |         13 |        243 |          5 |         50 |        298 |
+| src (Files)                                                                                                                           |          1 |          1 |          8 |          4 |         13 |
+| src\asteroid                                                                                                                          |         12 |        242 |         -3 |         46 |        285 |
+| src\asteroid (Files)                                                                                                                  |          1 |        103 |         -6 |         19 |        116 |
+| src\asteroid\data                                                                                                                     |          1 |         14 |          0 |          0 |         14 |
+| src\asteroid\drawable                                                                                                                 |          2 |         11 |          0 |          2 |         13 |
+| src\asteroid\entity                                                                                                                   |          1 |         93 |          3 |         17 |        113 |
+| src\asteroid\shader                                                                                                                   |          7 |         21 |          0 |          8 |         29 |
+| src\asteroid\shader (Files)                                                                                                           |          3 |        -23 |          0 |        -13 |        -36 |
+| src\asteroid\shader\Object                                                                                                            |          2 |         31 |          0 |         15 |         46 |
+| src\asteroid\shader\Teste                                                                                                             |          2 |         13 |          0 |          6 |         19 |
+| target                                                                                                                                |        140 |    119,095 |      2,100 |      9,800 |    130,995 |
+| target\wasm-bindgen                                                                                                                   |        140 |    119,095 |      2,100 |      9,800 |    130,995 |
+| target\wasm-bindgen\debug                                                                                                             |        140 |    119,095 |      2,100 |      9,800 |    130,995 |
++---------------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++---------------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| filename                                                                                                                              | language   | code       | comment    | blank      | total      |
++---------------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\dist\.stage\index-c23e4b81ddf7cf91.css                       | CSS        |        -56 |         -1 |         -6 |        -63 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\dist\trunk-template-3a7e4a502fe0299b.js                      | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\dist\trunk-template-3bb1829f56a531ba.js                      | JavaScript |       -851 |        -15 |        -70 |       -936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\src\asteroid\data\ship.json                                  | JSON       |         14 |          0 |          0 |         14 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\src\asteroid\drawable\mod.rs                                 | Rust       |          1 |          0 |          0 |          1 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\src\asteroid\drawable\object.rs                              | Rust       |         10 |          0 |          2 |         12 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\src\asteroid\entity\mod.rs                                   | Rust       |         93 |          3 |         17 |        113 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\src\asteroid\game.rs                                         | Rust       |        103 |         -6 |         19 |        116 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\src\asteroid\shader\Object\fragment_shader.glsl              | GLSL       |          6 |          0 |          3 |          9 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\src\asteroid\shader\Object\vertex_shader.glsl                | GLSL       |         25 |          0 |         12 |         37 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\src\asteroid\shader\Teste\fragment.glsl                      | GLSL       |          5 |          0 |          2 |          7 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\src\asteroid\shader\Teste\vertex.glsl                        | GLSL       |          8 |          0 |          4 |         12 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\src\asteroid\shader\fragment_shader.glsl                     | GLSL       |         -6 |          0 |         -3 |         -9 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\src\asteroid\shader\mod.rs                                   | Rust       |          6 |          0 |          2 |          8 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\src\asteroid\shader\vertex_shader.glsl                       | GLSL       |        -23 |          0 |        -12 |        -35 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\src\main.rs                                                  | Rust       |          1 |          8 |          4 |         13 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-102e9533f687fb36.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-102ee792a72d4d4d.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-11e476057b8afd4c.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-130b91f9ee18c593.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-1564474a2d940558.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-162a7b9833f087ed.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-163fe2019016f6e0.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-16c794403bb61152.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-17a493ebf6ba62fd.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-17cb358dcae554a7.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-1853de67925226b1.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-1b8d0489e03e57ed.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-1cf3b2ce28664981.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-1e78c72d38e2209c.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-20590d7d673ee719.js | JavaScript |        848 |         15 |         70 |        933 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-221337bbe665167b.js | JavaScript |        848 |         15 |         70 |        933 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-22a9d1fbc40892cc.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-23fec3ef13ab8b4b.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-24812303f53620d.js  | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-2672fdc0f9612142.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-2b929206ab8a0330.js | JavaScript |        848 |         15 |         70 |        933 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-2d0ed8299792dae7.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-2df39b53ab47c331.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-2fb5dca5df123a5f.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-32c780b39254a62e.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-3307d06bcfdc8c90.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-387b867d93e646e4.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-3892fe7d6a04394d.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-3a7e4a502fe0299b.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-3bad2dfa2d04bfaf.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-3c332771340fa091.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-3dee792072b1f943.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-4206e18751e7631a.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-43652a21ca91c8eb.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-443aacd319747998.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-4479dd44005b0fe.js  | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-44cc0f0dd749e592.js | JavaScript |        848 |         15 |         70 |        933 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-47043d1685ab2f4e.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-48b327c8be58d762.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-49e453ecfa952cae.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-4a6bf344b2c6cb35.js | JavaScript |        848 |         15 |         70 |        933 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-4dc49a9f8b8b5df0.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-4e221de05b6b65ba.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-4e34304f754d1e97.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-4ed582cc1e1aeb8f.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-514af8832cf23ecb.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-520c5e6737cec4a.js  | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-524623a336003346.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-5436132f554dd3d1.js | JavaScript |        848 |         15 |         70 |        933 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-554a159c78407524.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-55c98f2e7a6cb6d.js  | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-57ee2d378c9b0d17.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-5aed6c6a28c098fd.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-5bd91e91a84ee986.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-5c8722c7f9389e89.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-5ed92cc50f019e6a.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-615a2004da7abe7e.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-617ef45a3ca961ad.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-63a62a5e83e05f36.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-64b382496be39f53.js | JavaScript |        848 |         15 |         70 |        933 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-65c45cb9f314e5a6.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-677afe910ef48d6a.js | JavaScript |        848 |         15 |         70 |        933 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-67d275e64aa38800.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-7065d849ed01d184.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-7589fceaf0a35dbc.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-7924b04f379fcc0a.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-7a0ec588f6cae4da.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-7a66a3f16974282b.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-7ad5c8b0c01a3aaa.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-7bac7459b8876a96.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-7bc3b91ea0e97055.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-7f77010267b68316.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-80ca64406c4f87a3.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-89b2b85f2a877cce.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-8ba85177c060849b.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-8de16c09d4a840b3.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-90db0bf9bd847a23.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-935db81300eb55db.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-96720e12fe238b5c.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-97e6d206ba667f9a.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-a5d7ea255cb9249f.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-a87b9e84f063677a.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-a930821d6cf86243.js | JavaScript |        848 |         15 |         70 |        933 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-ab951469d0dd2bdc.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-acfce90d5d78e399.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-ae6a95e1f51aa34a.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-b41832c6a618977e.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-b4317259eec397a3.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-b449b0a53160746f.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-b72c6410118055e5.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-b74f4dc27f47cc95.js | JavaScript |        848 |         15 |         70 |        933 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-b805c0b9e4ace3a6.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-b8b9038aad35a9d3.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-b9e6f125a9e2e275.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-bca626f7a50c0903.js | JavaScript |        848 |         15 |         70 |        933 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-bd3eba7662ca18f6.js | JavaScript |        848 |         15 |         70 |        933 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-be0cef626a500723.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-bed4708503a2122b.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-c079f2d52232bd4d.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-c127512d42c2da6a.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-c42f703591e2b0ec.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-c4e18f94d540a89e.js | JavaScript |        848 |         15 |         70 |        933 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-c71f772ad9a93448.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-c9677a0f2c6eb80b.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-c98d1abf0b99952.js  | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-cf0acf2cfe38b69e.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-d0d43d111b908ca3.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-d29e19525a1bd588.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-d390f6137f0c53d6.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-d498b9ee9304e1f.js  | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-d6c70dd95be97f5f.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-d70667db47ca8ec1.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-da17782e8cba045.js  | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-dc2413bd1013ca53.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-dc730eac27dddfa5.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-e115c2e1d3794793.js | JavaScript |        848 |         15 |         70 |        933 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-e32edacd1d3e74d6.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-e360429c20afc88f.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-e372eb19d2c12b41.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-e3792fa738131ad1.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-e7ff984c023e0046.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-e91cae0c59426c3a.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-e99baa610ce47e6.js  | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-ea139d109817635f.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-ebdd7d07889ab1ac.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-ee1bbb931db43569.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-ef924c712a7d1734.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-ef9aff272fb891cf.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-f0cc68533ede9ea4.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-f0d6dd0909d7ce49.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-f10f236af8e82f21.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-f47e3c75d917ac30.js | JavaScript |        848 |         15 |         70 |        933 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-f54d1e93f0690e64.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-f6466121d997a030.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-f69dd7c4f2a34c3c.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-f88b96f5f7ef9fa4.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-f8cb5d2b19e3f24a.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-fd2f088597412668.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-fde8fea1811babb0.js | JavaScript |        851 |         15 |         70 |        936 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\target\wasm-bindgen\debug\trunk-template-feac105a019fd6d.js  | JavaScript |        851 |         15 |         70 |        936 |
+| Total                                                                                                                                 |            |    119,282 |      2,104 |      9,844 |    131,230 |
++---------------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+

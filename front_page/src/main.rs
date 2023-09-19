@@ -3,13 +3,20 @@ mod asteroid;
 mod hook;
 
 use app::App;
-use nalgebra::Matrix3x2;
+use nalgebra::Vector2;
+// use nalgebra::Matrix2x3;
 
 fn main() {
     wasm_logger::init(wasm_logger::Config::default());
     yew::Renderer::<App>::new().render();
 
-    // let m = Matrix3x2::new(1.0, 2.0, 3.0, 4.0, 5.0, 6.0);
+    // println!("{:#?}", Vector2::new(1.0, 0.0));
+
+    // let v = Vector2::new(1.0, 0.0);
+
+    // println!("{:#?}", v);
+    // println!("{:#?}", v.);
+    // let m = Matrix2x3::new(1.0, 2.0, 3.0, 4.0, 5.0, 6.0);
 
     // let json = serde_json::to_string(&m).unwrap();
     // println!("{:#?}", json);

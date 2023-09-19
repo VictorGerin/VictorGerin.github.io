@@ -3,7 +3,7 @@ use std::{mem::size_of, rc::Rc};
 use crate::asteroid::shader;
 
 use super::*;
-use na::{Matrix3x2, Point2, Vector1, Vector3};
+use na::{Matrix2x3, Matrix3x2, Point2, Rotation2, Vector1, Vector3};
 use serde::Deserialize;
 
 #[derive(Deserialize, Debug, Clone)]
@@ -26,7 +26,7 @@ impl Default for DrawMode {
 pub struct Object {
     dimentions: Vector2<f64>,
     lst_vec_point: Vec<Point2<f64>>,
-    lst_hit_box: Vec<Matrix3x2<f64>>,
+    lst_hit_box: Vec<Matrix2x3<f64>>,
     #[serde(default)]
     scale: f64,
     #[serde(default)]
@@ -42,9 +42,9 @@ static mut GL_BUF: Option<Vec<Option<Rc<WebGlBuffer>>>> = None;
 
 #[derive(Debug, Clone)]
 pub struct ObjectDrawable {
-    lst_hit_box: Vec<Matrix3x2<f64>>,
-    dimentions: Vector2<f64>,
-    scale: f64,
+    pub lst_hit_box: Vec<Matrix2x3<f64>>,
+    pub dimentions: Vector2<f64>,
+    pub scale: f64,
     prg: Rc<WebGlProgram>,
     gl_buf: Rc<WebGlBuffer>,
     vertex_count: i32,
@@ -189,21 +189,6 @@ impl TryFrom<&str> for Object {
 impl ObjectDrawable {
     pub fn dimentions(&self) -> Vector2<f64> {
         self.dimentions * self.scale
-    }
-
-    fn triagle_hit(t1: Matrix3x2<f64>, t2: Matrix3x2<f64>) -> bool {
-        false
-    }
-
-    pub fn hit(&self, other: &ObjectDrawable) -> bool {
-        for triagle in self.lst_hit_box.iter() {
-            for other_triagle in other.lst_hit_box.iter() {
-                if ObjectDrawable::triagle_hit(*triagle, *other_triagle) {
-                    return true;
-                }
-            }
-        }
-        false
     }
 }
 

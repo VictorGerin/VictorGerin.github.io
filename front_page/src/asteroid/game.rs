@@ -224,10 +224,11 @@ impl Game {
 
         let mut person2 = EntityDrawable::load_gl(&gl, data::get_ship());
 
+        person2.object.scale = 5.0;
         person2.speed = Vector2::new(0.0, 0.0);
-        person2.pos = Point2::new(30.0, 10.0);
+        person2.pos = Point2::new(0.0, 60.0);
         person2.max_speed_sqr = 0.3;
-        person2.rotation = 0f64.to_radians();
+        person2.rotation = 180f64.to_radians();
         person2.delete_on_out_of_bounds = false;
 
         let entities = vec![person, person2];
@@ -374,7 +375,7 @@ impl Game {
         );
 
         // self.draw_vector();
-        // self.teste.draw(&self.gl);
+        self.teste.draw(&self.gl);
 
         {
             let player = self.entities.get_mut(self.player_index).unwrap();
@@ -428,7 +429,7 @@ impl Game {
                 // let other = &self.entities[j];
                 // self.entities[i].process_collision(other);
                 let color = {
-                    if self.entities[i].object.hit(&self.entities[j].object) {
+                    if self.entities[i].hit(&self.entities[j]) {
                         Vector3::new(1.0, 0.0, 0.0)
                     } else {
                         Vector3::new(1.0, 0.0, 1.0)
