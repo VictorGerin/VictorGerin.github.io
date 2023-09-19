@@ -229,8 +229,8 @@ impl Drawable for ObjectDrawable {
 
         gl.vertex_attrib2f(
             gl.get_attrib_location(gl_prg, "dimm") as u32,
-            self.dimentions.x as f32,
-            self.dimentions.y as f32,
+            self.dimentions().x as f32,
+            self.dimentions().y as f32,
         );
 
         gl.vertex_attrib1f(
@@ -239,7 +239,7 @@ impl Drawable for ObjectDrawable {
         );
 
         gl.vertex_attrib3f(
-            gl.get_attrib_location(&gl_prg, "color") as u32,
+            gl.get_attrib_location(gl_prg, "color") as u32,
             color.x as f32,
             color.y as f32,
             color.z as f32,

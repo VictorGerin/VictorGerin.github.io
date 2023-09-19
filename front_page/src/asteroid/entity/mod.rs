@@ -59,20 +59,19 @@ impl EntityDrawable {
         self.object.draw(context, pos, self.rotation, self.color)
     }
 
-    fn min(n1: f64, n2: f64) -> f64 {
-        if n1 < n2 {
-            n1
-        } else {
-            n2
-        }
-    }
+    fn get_min_max_from_proj(points: Matrix2x3<f64>, axis_proj: Vector2<f64>) -> (f64, f64) {
+        
+        let mut min_r1 = f64::INFINITY;
+        let mut max_r1 = -f64::INFINITY;
 
-    fn max(n1: f64, n2: f64) -> f64 {
-        if n1 > n2 {
-            n1
-        } else {
-            n2
+        for p in 0..points.nrows() {
+            let p: Vector2<f64> = points.column(p).into();
+            let q = p.dotc(&axis_proj);
+
+            min_r1 = q.min(min_r1);
+            max_r1 = q.max(max_r1);
         }
+        return (min_r1, max_r1);
     }
 
     fn triagle_hit(t1: Matrix2x3<f64>, t2: Matrix2x3<f64>) -> bool {
@@ -81,52 +80,8 @@ impl EntityDrawable {
             let axis_proj: Vector2<f64> = t1.column(b) - t1.column(a);
             let axis_proj = Vector2::new(-axis_proj.y, axis_proj.x);
 
-            let mut min_r1 = f64::INFINITY;
-            let mut max_r1 = -f64::INFINITY;
-
-            for p in 0..3 {
-                let p: Vector2<f64> = t1.column(p).into();
-                let q = p.dotc(&axis_proj);
-
-                min_r1 = {
-                    if q < min_r1 {
-                        q
-                    } else {
-                        min_r1
-                    }
-                };
-
-                max_r1 = {
-                    if q > max_r1 {
-                        q
-                    } else {
-                        max_r1
-                    }
-                };
-            }
-
-            let mut min_r2 = f64::INFINITY;
-            let mut max_r2 = -f64::INFINITY;
-            for p in 0..3 {
-                let p: Vector2<f64> = t2.column(p).into();
-                let q = p.dotc(&axis_proj);
-
-                min_r2 = {
-                    if q < min_r2 {
-                        q
-                    } else {
-                        min_r2
-                    }
-                };
-
-                max_r2 = {
-                    if q > max_r2 {
-                        q
-                    } else {
-                        max_r2
-                    }
-                };
-            }
+            let (min_r1, max_r1) = EntityDrawable::get_min_max_from_proj(t1, axis_proj);
+            let (min_r2, max_r2) = EntityDrawable::get_min_max_from_proj(t2, axis_proj);
 
             if max_r2 < min_r1 || max_r1 < min_r2 {
                 return false;
@@ -136,33 +91,44 @@ impl EntityDrawable {
         true
     }
 
-    pub fn hit(&self, other: &EntityDrawable) -> bool {
-        let dimm = self.object.dimentions() / 2.0;
-        let dimm = Matrix2x3::from_columns(&[dimm, dimm, dimm]);
-        let offset = self.pos.coords;
-        let offset = Matrix2x3::from_columns(&[offset, offset, offset]);
+    fn transform_triagle(obj: &EntityDrawable, t: Matrix2x3<f64>) -> Matrix2x3<f64> {
+        let dimm:Vector2<f64> = obj.object.dimentions() / 2.0;
+        let rot: Rotation2<f64> = Rotation2::new(obj.rotation);
+        let mut p1: Vector2<f64> = t.column(0).into();
+        let mut p2: Vector2<f64> = t.column(1).into();
+        let mut p3: Vector2<f64> = t.column(2).into();
 
-        let dimm_other = other.object.dimentions() / 2.0;
-        let dimm_other = Matrix2x3::from_columns(&[dimm_other, dimm_other, dimm_other]);
-        let offset_other = other.pos.coords;
-        let offset_other = Matrix2x3::from_columns(&[offset_other, offset_other, offset_other]);
+        p1 *= obj.object.scale;
+        p2 *= obj.object.scale;
+        p3 *= obj.object.scale;
+
+        p1 -= dimm;
+        p2 -= dimm;
+        p3 -= dimm;
+
+        p1 = rot * p1;
+        p2 = rot * p2;
+        p3 = rot * p3;
+
+        p1 += dimm + obj.pos.coords;
+        p2 += dimm + obj.pos.coords;
+        p3 += dimm + obj.pos.coords;
+
+        Matrix2x3::from_columns(&[p1, p2, p3])
+    }
+
+
+    pub fn hit(&self, other: &EntityDrawable) -> bool {
 
         for triagle in self.object.lst_hit_box.iter() {
             for other_triagle in other.object.lst_hit_box.iter() {
-                let triagle = triagle * self.object.scale;
-                let triagle = triagle - dimm;
-                let triagle = Rotation2::new(other.rotation) * triagle;
-                let triagle = triagle + dimm + offset;
-                // log::info!("p1-after = {}", triagle / 1000.0);
 
-                // log::info!("p2 = {}", other_triagle / 1000.0);
-                let other_triagle = other_triagle * other.object.scale;
-                let other_triagle = other_triagle - dimm_other;
-                let other_triagle = Rotation2::new(other.rotation) * other_triagle;
-                let other_triagle = other_triagle + dimm_other + offset_other;
-                // log::info!("p2-after = {}", other_triagle / 1000.0);
+                let triagle2 = EntityDrawable::transform_triagle(self, *triagle);
+                let other_triagle = EntityDrawable::transform_triagle(other, *other_triagle);
 
-                if EntityDrawable::triagle_hit(triagle, other_triagle) {
+                log::info!("{:?} {:?}", triagle, triagle2 / 1000.0);
+
+                if EntityDrawable::triagle_hit(triagle2, other_triagle) {
                     return true;
                 }
             }

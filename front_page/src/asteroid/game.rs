@@ -224,9 +224,9 @@ impl Game {
 
         let mut person2 = EntityDrawable::load_gl(&gl, data::get_ship());
 
-        person2.object.scale = 5.0;
+        person2.object.scale = 3.0;
         person2.speed = Vector2::new(0.0, 0.0);
-        person2.pos = Point2::new(0.0, 60.0);
+        person2.pos = Point2::new(0.0, 0.0);
         person2.max_speed_sqr = 0.3;
         person2.rotation = 180f64.to_radians();
         person2.delete_on_out_of_bounds = false;
@@ -379,19 +379,21 @@ impl Game {
 
         {
             let player = self.entities.get_mut(self.player_index).unwrap();
-            if self.input.mouse.left {
-                player.process_player_acc(self.input.mouse.pos);
-            } else if player.speed.magnitude() > 0.001 {
-                let arrasto: Vector2<f64> = player.speed.normalize() * -0.00007;
-                player.acc = arrasto;
-            } else {
-                player.acc = Vector2::default();
-                player.speed = Vector2::default();
-            }
+            player.rotation += 1f64.to_radians();
+            player.pos = self.input.mouse.pos;
+            // if self.input.mouse.left {
+            //     player.process_player_acc(self.input.mouse.pos);
+            // } else if player.speed.magnitude() > 0.001 {
+            //     let arrasto: Vector2<f64> = player.speed.normalize() * -0.00007;
+            //     player.acc = arrasto;
+            // } else {
+            //     player.acc = Vector2::default();
+            //     player.speed = Vector2::default();
+            // }
 
-            if self.input.mouse.left || self.input.mouse.right {
-                player.process_player_rot(self.input.mouse.pos);
-            }
+            // if self.input.mouse.left || self.input.mouse.right {
+            //     player.process_player_rot(self.input.mouse.pos);
+            // }
         }
 
         if self.input.mouse.right {

@@ -24,9 +24,9 @@ void main()
 	
 	pos *= scale;
 
-	pos -= dimm;
+	pos -= dimm / 2.0;
 	pos = rotationMatrix * pos;
-	pos += dimm;
+	pos += dimm / 2.0;
 
 	pos += offset;
 
