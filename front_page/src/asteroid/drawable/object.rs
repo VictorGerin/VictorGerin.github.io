@@ -241,16 +241,14 @@ impl Drawable for ObjectDrawable {
             color.cast().as_slice(),
         );
 
-        match self.draw_mode {
-            DrawMode::LineLoop => {
-                gl.draw_arrays(WebGlRenderingContext::LINE_LOOP, 0, self.vertex_count)
-            }
-            DrawMode::TriangleFan => {
-                gl.draw_arrays(WebGlRenderingContext::TRIANGLE_FAN, 0, self.vertex_count)
-            }
-            DrawMode::Points => gl.draw_arrays(WebGlRenderingContext::POINTS, 0, self.vertex_count),
-            _ => gl.draw_arrays(WebGlRenderingContext::LINE_LOOP, 0, self.vertex_count),
-        }
+        let mode = match self.draw_mode {
+            DrawMode::LineLoop => WebGlRenderingContext::LINE_LOOP,
+            DrawMode::TriangleFan => WebGlRenderingContext::TRIANGLE_FAN,
+            DrawMode::Points => WebGlRenderingContext::POINTS,
+            _ => WebGlRenderingContext::LINE_LOOP,
+        };
+
+        gl.draw_arrays(mode, 0, self.vertex_count);
 
         Ok(())
     }
