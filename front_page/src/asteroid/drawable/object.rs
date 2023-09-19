@@ -248,6 +248,7 @@ impl Drawable for ObjectDrawable {
             DrawMode::TriangleFan => {
                 gl.draw_arrays(WebGlRenderingContext::TRIANGLE_FAN, 0, self.vertex_count)
             }
+            DrawMode::Points => gl.draw_arrays(WebGlRenderingContext::POINTS, 0, self.vertex_count),
             _ => gl.draw_arrays(WebGlRenderingContext::LINE_LOOP, 0, self.vertex_count),
         }
 

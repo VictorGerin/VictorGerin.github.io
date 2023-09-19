@@ -23,6 +23,7 @@ void main()
 	vec2 pos = vert_position;
 	
 	pos *= scale;
+	gl_PointSize = scale;
 
 	pos -= dimm / 2.0;
 	pos = rotationMatrix * pos;
