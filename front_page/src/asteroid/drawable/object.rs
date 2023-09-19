@@ -211,7 +211,7 @@ impl Drawable for ObjectDrawable {
             2,
             WebGlRenderingContext::FLOAT,
             false,
-            2 * size_of::<f32>() as i32,
+            0,
             0,
         );
         gl.enable_vertex_attrib_array(vert_position);
@@ -221,16 +221,14 @@ impl Drawable for ObjectDrawable {
             rotation as f32,
         );
 
-        gl.vertex_attrib2f(
+        gl.vertex_attrib2fv_with_f32_array(
             gl.get_attrib_location(gl_prg, "offset") as u32,
-            offset.x as f32,
-            offset.y as f32,
+            offset.coords.cast().as_slice(),
         );
 
-        gl.vertex_attrib2f(
+        gl.vertex_attrib2fv_with_f32_array(
             gl.get_attrib_location(gl_prg, "dimm") as u32,
-            self.dimentions().x as f32,
-            self.dimentions().y as f32,
+            self.dimentions().cast().as_slice(),
         );
 
         gl.vertex_attrib1f(
@@ -238,11 +236,9 @@ impl Drawable for ObjectDrawable {
             self.scale as f32,
         );
 
-        gl.vertex_attrib3f(
+        gl.vertex_attrib3fv_with_f32_array(
             gl.get_attrib_location(gl_prg, "color") as u32,
-            color.x as f32,
-            color.y as f32,
-            color.z as f32,
+            color.cast().as_slice(),
         );
 
         match self.draw_mode {
@@ -254,39 +250,6 @@ impl Drawable for ObjectDrawable {
             }
             _ => gl.draw_arrays(WebGlRenderingContext::LINE_LOOP, 0, self.vertex_count),
         }
-
-        // context.begin_path();
-
-        // let scale = self.scale;
-        // let center = self.dimentions() / 2.0;
-
-        // let transform: Matrix2<f64> = Matrix2::new_scaling(scale);
-        // let transform: Matrix2<f64> = transform * Matrix2::new_translation(&offset);
-        // let transform: Matrix2<f64> = transform * Rotation2::new(rotation);
-
-        // Matrix2::new_scaling(scale)
-        //     * Matrix2::new_translation(offset.coords)
-        //     * Matrix2::new_rotation(rotation);
-
-        //executa offset
-        // context.translate(offset.x, offset.y)?;
-
-        //executa rotação
-        // context.translate(center.x, center.y)?;
-        // context.rotate(rotation)?;
-        // context.translate(-center.x, -center.y)?;
-
-        // let first = self.lst_vec_point[0] * scale;
-        // context.move_to(first.x, first.y);
-        // for point in self.lst_vec_point[1..].iter() {
-        //     let point = point * scale;
-        //     context.line_to(point.x, point.y);
-        // }
-
-        // (self as &dyn DrawableCollection<DrawableType>).draw(context, offset, rotation, scale)?;
-        // context.stroke();
-
-        // context.set_transform(1.0, 0.0, 0.0, 1.0, 0.0, 0.0)?;
 
         Ok(())
     }

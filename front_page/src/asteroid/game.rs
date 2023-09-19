@@ -1,7 +1,7 @@
 use std::mem::size_of;
 
-use nalgebra::{Point2, Rotation2, Vector2, Vector3};
-use rand::Rng;
+use nalgebra::{Matrix2x3, Point2, Point3, Rotation2, RowVector2, Vector2, Vector3};
+use rand::{rngs::ThreadRng, Rng};
 use wasm_bindgen::{JsCast, JsValue};
 use web_sys::{HtmlCanvasElement, WebGlBuffer, WebGlProgram, WebGlRenderingContext};
 
@@ -205,7 +205,7 @@ impl GameLogicEntity for EntityDrawable {
 
 impl Game {
     pub fn new(canvas: HtmlCanvasElement) -> Self {
-        let rng = rand::thread_rng();
+        let mut rng = rand::thread_rng();
 
         let gl: WebGlRenderingContext = canvas
             .get_context("webgl")
@@ -217,21 +217,47 @@ impl Game {
         let mut person = EntityDrawable::load_gl(&gl, data::get_ship());
 
         person.speed = Vector2::new(0.0, 0.0);
-        person.pos = Point2::new(0.0, 0.0);
+        person.pos = Point2::new(0.0, 200.0);
         person.max_speed_sqr = 0.3;
         person.rotation = 0f64.to_radians();
         person.delete_on_out_of_bounds = false;
+        let mut entities: Vec<EntityDrawable> = vec![person];
 
         let mut person2 = EntityDrawable::load_gl(&gl, data::get_ship());
-
         person2.object.scale = 3.0;
         person2.speed = Vector2::new(0.0, 0.0);
-        person2.pos = Point2::new(0.0, 0.0);
+        person2.pos = Game::random_point(&mut rng, Vector2::new(1000.0, 1000.0));
         person2.max_speed_sqr = 0.3;
         person2.rotation = 180f64.to_radians();
         person2.delete_on_out_of_bounds = false;
+        entities.push(person2);
 
-        let entities = vec![person, person2];
+        let mut person2 = EntityDrawable::load_gl(&gl, data::get_ship());
+        person2.object.scale = 3.0;
+        person2.speed = Vector2::new(0.0, 0.0);
+        person2.pos = Game::random_point(&mut rng, Vector2::new(1000.0, 1000.0));
+        person2.max_speed_sqr = 0.3;
+        person2.rotation = 180f64.to_radians();
+        person2.delete_on_out_of_bounds = false;
+        entities.push(person2);
+
+        let mut person2 = EntityDrawable::load_gl(&gl, data::get_ship());
+        person2.object.scale = 3.0;
+        person2.speed = Vector2::new(0.0, 0.0);
+        person2.pos = Game::random_point(&mut rng, Vector2::new(1000.0, 1000.0));
+        person2.max_speed_sqr = 0.3;
+        person2.rotation = 180f64.to_radians();
+        person2.delete_on_out_of_bounds = false;
+        entities.push(person2);
+
+        let mut person2 = EntityDrawable::load_gl(&gl, data::get_ship());
+        person2.object.scale = 3.0;
+        person2.speed = Vector2::new(0.0, 0.0);
+        person2.pos = Game::random_point(&mut rng, Vector2::new(1000.0, 1000.0));
+        person2.max_speed_sqr = 0.3;
+        person2.rotation = 180f64.to_radians();
+        person2.delete_on_out_of_bounds = false;
+        entities.push(person2);
 
         let data = [-1.0, 0.0, 1.0, 0.0, 0.0, -1.0, 0.0, 1.0];
         let teste = TesteDraw::new(&gl, &data, WebGlRenderingContext::LINES, 0f32);
@@ -260,9 +286,11 @@ impl Game {
     }
 
     #[allow(dead_code)]
-    fn draw_debug_point(gl: &WebGlRenderingContext, point: &Point2<f64>) {
+    fn draw_debug_point(gl: &WebGlRenderingContext, point: &Point2<f64>, color: Vector3<f64>) {
         let mut bullet = EntityDrawable::load_gl(&gl, data::get_bullet());
-        bullet.pos = point.clone();
+        bullet.object.scale = 0.4;
+        bullet.color = color;
+        bullet.pos = point.clone() - bullet.object.dimentions() / 2.0;
         bullet.draw(&gl).unwrap();
     }
 
@@ -347,17 +375,14 @@ impl Game {
     //     // offset += 1.0;
     // }
 
-    fn random_point(&mut self) -> Point2<f64> {
-        Point2::new(
-            self.rng.gen_range(0.0..self.map_dim.x),
-            self.rng.gen_range(0.0..self.map_dim.y),
-        )
+    fn random_point(rng: &mut ThreadRng, map_dim: Vector2<f64>) -> Point2<f64> {
+        Point2::new(rng.gen_range(0.0..map_dim.x), rng.gen_range(0.0..map_dim.y))
     }
 
     fn spawn_asteroid(&mut self) -> EntityDrawable {
         let mut asteroid = EntityDrawable::load_gl(&self.gl, data::get_asteroid());
 
-        let pos = self.random_point();
+        let pos = Game::random_point(&mut self.rng, self.map_dim);
         asteroid.speed = Vector2::new(0.0, 0.0);
         asteroid.pos = pos;
         asteroid.rotation = 0f64.to_radians();
@@ -379,21 +404,19 @@ impl Game {
 
         {
             let player = self.entities.get_mut(self.player_index).unwrap();
-            player.rotation += 1f64.to_radians();
-            player.pos = self.input.mouse.pos;
-            // if self.input.mouse.left {
-            //     player.process_player_acc(self.input.mouse.pos);
-            // } else if player.speed.magnitude() > 0.001 {
-            //     let arrasto: Vector2<f64> = player.speed.normalize() * -0.00007;
-            //     player.acc = arrasto;
-            // } else {
-            //     player.acc = Vector2::default();
-            //     player.speed = Vector2::default();
-            // }
+            if self.input.mouse.left {
+                player.process_player_acc(self.input.mouse.pos);
+            } else if player.speed.magnitude() > 0.001 {
+                let arrasto: Vector2<f64> = player.speed.normalize() * -0.00007;
+                player.acc = arrasto;
+            } else {
+                player.acc = Vector2::default();
+                player.speed = Vector2::default();
+            }
 
-            // if self.input.mouse.left || self.input.mouse.right {
-            //     player.process_player_rot(self.input.mouse.pos);
-            // }
+            if self.input.mouse.left || self.input.mouse.right {
+                player.process_player_rot(self.input.mouse.pos);
+            }
         }
 
         if self.input.mouse.right {
@@ -426,10 +449,8 @@ impl Game {
             entity.process_teleport();
         }
 
-        for i in 0..self.entities.len() {
+        for i in 0..1 {
             for j in (i + 1)..self.entities.len() {
-                // let other = &self.entities[j];
-                // self.entities[i].process_collision(other);
                 let color = {
                     if self.entities[i].hit(&self.entities[j]) {
                         Vector3::new(1.0, 0.0, 0.0)
