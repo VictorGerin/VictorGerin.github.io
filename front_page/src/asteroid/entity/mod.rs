@@ -72,6 +72,23 @@ impl EntityDrawable {
         return (min_r1, max_r1);
     }
 
+    fn triagle_hit_point(t1: Matrix2x3<f64>, p: Vector2<f64>) -> bool {
+        let ncols = t1.ncols();
+        for a in 0..ncols {
+            let b = (a + 1) % ncols;
+            let axis_proj: Vector2<f64> = t1.column(b) - t1.column(a);
+            let axis_proj: Vector2<f64> = Vector2::new(-axis_proj.y, axis_proj.x).normalize();
+
+            let (min_r1, max_r1) = EntityDrawable::get_min_max_from_proj(t1, axis_proj);
+            let r2 = p.dotc(&axis_proj);
+
+            if !(r2 >= min_r1 && max_r1 >= r2) {
+                return false;
+            }
+        }
+
+        true
+    }
     fn triagle_hit(t1: Matrix2x3<f64>, t2: Matrix2x3<f64>) -> bool {
         let ncols = t1.ncols();
         for a in 0..ncols {
@@ -103,31 +120,64 @@ impl EntityDrawable {
         true
     }
 
-    fn transform_triagle(obj: &EntityDrawable, mut t: Matrix2x3<f64>) -> Matrix2x3<f64> {
+    pub fn transform_triagle(obj: &EntityDrawable, t: Matrix2x3<f64>) -> Matrix2x3<f64> {
         let dimm: Vector2<f64> = obj.object.dimentions() / 2.0;
-        let dimm: Matrix2x3<f64> = Matrix2x3::from_columns(&[dimm, dimm, dimm]);
-
-        let coords: Matrix2x3<f64> =
-            Matrix2x3::from_columns(&[obj.pos.coords, obj.pos.coords, obj.pos.coords]);
 
         let rot: Rotation2<f64> = Rotation2::new(-obj.rotation);
 
-        t *= obj.object.scale;
+        let t: Vec<Vector2<f64>> = t
+            .column_iter()
+            .map(|x| {
+                let mut x: Vector2<f64> = x * obj.object.scale;
 
-        t -= dimm;
-        t = rot * t;
-        t += dimm;
+                x -= dimm;
+                x = rot * x;
+                x += dimm;
 
-        t + coords
+                x += obj.pos.coords;
+                x
+            })
+            .collect();
+
+        Matrix2x3::from_columns(&t)
     }
 
+    /**
+     * check if two entity hit
+     */
     pub fn hit(&self, other: &EntityDrawable) -> bool {
-        for triagle in self.object.lst_hit_box.iter() {
-            for other_triagle in other.object.lst_hit_box.iter() {
-                let triagle2 = EntityDrawable::transform_triagle(self, *triagle);
+        //order by number of triagles
+        //bigger always first
+        let (first, other) = {
+            if self.object.lst_hit_box.len() > other.object.lst_hit_box.len() {
+                (self, other)
+            } else {
+                (other, self)
+            }
+        };
+
+        let (lst1, lst2) = (
+            first.object.lst_hit_box.iter(),
+            other.object.lst_hit_box.iter(),
+        );
+
+        for triagle in lst1.clone() {
+            let triagle = EntityDrawable::transform_triagle(first, *triagle);
+            for other_triagle in lst2.clone() {
                 let other_triagle = EntityDrawable::transform_triagle(other, *other_triagle);
 
-                if EntityDrawable::triagle_hit(triagle2, other_triagle) {
+                //if one hit box hits the other all the entity hit
+                if EntityDrawable::triagle_hit(triagle, other_triagle) {
+                    return true;
+                }
+            }
+            //if other has no hit box (like a bullet with is a single point)
+            //check hit with it coords
+            if lst2.len() == 0 {
+                let p = other.pos.coords + other.object.dimentions() / 2.0;
+
+                //if one hit box hits the other all the entity hit
+                if EntityDrawable::triagle_hit_point(triagle, p) {
                     return true;
                 }
             }

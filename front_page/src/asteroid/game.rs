@@ -123,8 +123,6 @@ pub struct Game {
     pub input: UserInput,
     rng: rand::rngs::ThreadRng,
     last_shoot: f64,
-
-    teste: TesteDraw,
 }
 
 trait GameLogicEntity {
@@ -205,7 +203,7 @@ impl GameLogicEntity for EntityDrawable {
 
 impl Game {
     pub fn new(canvas: HtmlCanvasElement) -> Self {
-        let mut rng = rand::thread_rng();
+        let rng = rand::thread_rng();
 
         let gl: WebGlRenderingContext = canvas
             .get_context("webgl")
@@ -221,46 +219,19 @@ impl Game {
         person.max_speed_sqr = 0.3;
         person.rotation = 0f64.to_radians();
         person.delete_on_out_of_bounds = false;
-        let mut entities: Vec<EntityDrawable> = vec![person];
+        let entities: Vec<EntityDrawable> = vec![person];
 
-        let mut person2 = EntityDrawable::load_gl(&gl, data::get_ship());
-        person2.object.scale = 3.0;
-        person2.speed = Vector2::new(0.0, 0.0);
-        person2.pos = Game::random_point(&mut rng, Vector2::new(1000.0, 1000.0));
-        person2.max_speed_sqr = 0.3;
-        person2.rotation = 180f64.to_radians();
-        person2.delete_on_out_of_bounds = false;
-        entities.push(person2);
+        // let mut person2 = EntityDrawable::load_gl(&gl, data::get_asteroid());
+        // person2.object.scale = 6.0;
+        // person2.speed = Vector2::new(0.0, 0.0);
+        // person2.pos = Point2::new(500.0, 500.0) - person2.object.dimentions() / 2.0;
+        // // person2.pos = Game::random_point(&mut rng, Vector2::new(1000.0, 1000.0));
+        // person2.max_speed_sqr = 0.3;
+        // person2.rotation = 0f64.to_radians();
+        // person2.delete_on_out_of_bounds = false;
+        // entities.push(person2);
 
-        let mut person2 = EntityDrawable::load_gl(&gl, data::get_ship());
-        person2.object.scale = 3.0;
-        person2.speed = Vector2::new(0.0, 0.0);
-        person2.pos = Game::random_point(&mut rng, Vector2::new(1000.0, 1000.0));
-        person2.max_speed_sqr = 0.3;
-        person2.rotation = 180f64.to_radians();
-        person2.delete_on_out_of_bounds = false;
-        entities.push(person2);
-
-        let mut person2 = EntityDrawable::load_gl(&gl, data::get_ship());
-        person2.object.scale = 3.0;
-        person2.speed = Vector2::new(0.0, 0.0);
-        person2.pos = Game::random_point(&mut rng, Vector2::new(1000.0, 1000.0));
-        person2.max_speed_sqr = 0.3;
-        person2.rotation = 180f64.to_radians();
-        person2.delete_on_out_of_bounds = false;
-        entities.push(person2);
-
-        let mut person2 = EntityDrawable::load_gl(&gl, data::get_ship());
-        person2.object.scale = 3.0;
-        person2.speed = Vector2::new(0.0, 0.0);
-        person2.pos = Game::random_point(&mut rng, Vector2::new(1000.0, 1000.0));
-        person2.max_speed_sqr = 0.3;
-        person2.rotation = 180f64.to_radians();
-        person2.delete_on_out_of_bounds = false;
-        entities.push(person2);
-
-        let data = [-1.0, 0.0, 1.0, 0.0, 0.0, -1.0, 0.0, 1.0];
-        let teste = TesteDraw::new(&gl, &data, WebGlRenderingContext::LINES, 0f32);
+        // gl.viewport(0, 0, canvas.width() as i32, canvas.height() as i32);
 
         Self {
             entities,
@@ -271,7 +242,6 @@ impl Game {
             player_index: 0, //player is always the first entity
             rng,
             last_shoot: 0.0,
-            teste,
         }
     }
 
@@ -286,24 +256,22 @@ impl Game {
     }
 
     #[allow(dead_code)]
-    fn draw_debug_point(gl: &WebGlRenderingContext, point: &Point2<f64>, color: Vector3<f64>) {
-        let mut bullet = EntityDrawable::load_gl(&gl, data::get_bullet());
-        bullet.object.scale = 0.4;
-        bullet.color = color;
-        bullet.pos = point.clone() - bullet.object.dimentions() / 2.0;
-        bullet.draw(&gl).unwrap();
+    fn draw_debug_point(gl: &WebGlRenderingContext, point: &Point2<f64>) {
+        let a: &[f32] = &[point.x as f32, point.y as f32];
+        let t = TesteDraw::new(gl, a, WebGlRenderingContext::POINTS, 6.0);
+        t.draw(gl);
     }
 
     #[allow(dead_code)]
-    fn draw_vector(&self) {
-        let t = TesteDraw::new(&self.gl, &[0.5, 0.5], WebGlRenderingContext::POINTS, 20.0);
-        t.draw(&self.gl);
-        // self.context.begin_path();
-        // self.context.move_to(pos.x, pos.y);
-        // let vector = pos + vector;
-        // self.context.line_to(vector.x, vector.y);
-        // self.context.stroke();
-        // self.draw_debug_point(vector);
+    fn draw_vector(gl: &WebGlRenderingContext, reference: &Vector2<f64>, pos: &Vector2<f64>) {
+        let a: &[f32] = &[
+            reference.x as f32,
+            reference.y as f32,
+            pos.x as f32,
+            pos.y as f32,
+        ];
+        let t = TesteDraw::new(gl, a, WebGlRenderingContext::LINES, 0.0);
+        t.draw(gl);
     }
 
     fn spawn_bullet(
@@ -323,6 +291,7 @@ impl Game {
 
         let mut bullet = EntityDrawable::load_gl(gl, data::get_bullet());
         bullet.delete_on_out_of_bounds = true;
+        // bullet.object.scale = 5.0;
         bullet.pos = (coors - bullet.object.dimentions() / 2.0).into();
         bullet.speed = dir_vector * 1.0 + player.speed;
         bullet
@@ -392,15 +361,16 @@ impl Game {
     }
 
     pub fn game_loop(&mut self, time: f64, delta: f64) {
-        // self.gl
-        //     .viewport(0, 0, self.canvas_dim.x as i32, self.canvas_dim.y as i32);
         self.gl.clear_color(1.0, 1.0, 1.0, 1.0);
         self.gl.clear(
             WebGlRenderingContext::COLOR_BUFFER_BIT | WebGlRenderingContext::DEPTH_BUFFER_BIT,
         );
 
         // self.draw_vector();
-        self.teste.draw(&self.gl);
+
+        // let data = [-1.0, 0.0, 1.0, 0.0, 0.0, -1.0, 0.0, 1.0];
+        // let teste = TesteDraw::new(&self.gl, &data, WebGlRenderingContext::LINES, 0f32);
+        // teste.draw(&self.gl);
 
         {
             let player = self.entities.get_mut(self.player_index).unwrap();
@@ -438,18 +408,7 @@ impl Game {
             entity.update_physics(delta);
         }
 
-        self.entities = self
-            .entities
-            .iter()
-            .filter(|x| !x.delete_on_out_of_bounds || !x.shoud_delete())
-            .cloned()
-            .collect();
-
-        for entity in self.entities.iter_mut() {
-            entity.process_teleport();
-        }
-
-        for i in 0..1 {
+        for i in 0..self.entities.len() {
             for j in (i + 1)..self.entities.len() {
                 let color = {
                     if self.entities[i].hit(&self.entities[j]) {
@@ -462,6 +421,34 @@ impl Game {
                 self.entities.get_mut(j).unwrap().color = color;
             }
         }
+
+        self.entities = self
+            .entities
+            .iter()
+            .filter(|x| !x.delete_on_out_of_bounds || !x.shoud_delete())
+            .cloned()
+            .collect();
+
+        for entity in self.entities.iter_mut() {
+            entity.process_teleport();
+        }
+
+        //uncoment for debug colisions triagles
+        // for entity in self.entities.iter() {
+        //     for triagle in entity.object.lst_hit_box.iter() {
+        //         let triagle: Matrix2x3<f64> =
+        //             EntityDrawable::transform_triagle(entity, *triagle) / 1000.0;
+
+        //         for i in 0..3 {
+        //             let next = (i + 1) % 3;
+        //             let a: Vector2<f64> = triagle.column(i).into();
+        //             let b: Vector2<f64> = triagle.column(next).into();
+
+        //             Game::draw_vector(&self.gl, &a.into(), &b.into());
+        //             Game::draw_debug_point(&self.gl, &a.into());
+        //         }
+        //     }
+        // }
 
         // //Draw loop
         for entity in self.entities.iter() {
