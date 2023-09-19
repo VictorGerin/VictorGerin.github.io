@@ -1,6 +1,6 @@
 use std::mem::size_of;
 
-use nalgebra::{Matrix2x3, Point2, Point3, Rotation2, RowVector2, Vector2, Vector3};
+use nalgebra::{Point2, Rotation2, Vector2, Vector3};
 use rand::{rngs::ThreadRng, Rng};
 use wasm_bindgen::{JsCast, JsValue};
 use web_sys::{HtmlCanvasElement, WebGlBuffer, WebGlProgram, WebGlRenderingContext};

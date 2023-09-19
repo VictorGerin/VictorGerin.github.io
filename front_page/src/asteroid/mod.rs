@@ -13,7 +13,7 @@ use wasm_bindgen::{prelude::Closure, JsCast};
 
 use std::{cell::RefCell, rc::Rc};
 
-use crate::asteroid::game::{ButtonState, MouseInput};
+use crate::asteroid::game::ButtonState;
 
 use super::hook::*;
 use game::Game;

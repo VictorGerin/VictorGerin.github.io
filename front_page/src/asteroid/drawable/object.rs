@@ -1,9 +1,9 @@
-use std::{mem::size_of, rc::Rc};
+use std::rc::Rc;
 
 use crate::asteroid::shader;
 
 use super::*;
-use na::{Matrix2x3, Matrix3x2, Point2, Rotation2, Vector1, Vector3};
+use na::{Matrix2x3, Point2, Vector3};
 use serde::Deserialize;
 
 #[derive(Deserialize, Debug, Clone)]
