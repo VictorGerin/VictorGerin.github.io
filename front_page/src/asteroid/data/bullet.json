@@ -6,6 +6,23 @@
         0
     ],
     "lst_hit_box": [],
+    "hit_box": [
+        [
+            0,
+            0
+        ],
+        null,
+        1
+    ],
+    "hit_box_edge": [
+        [
+            0,
+            0
+        ],
+        null,
+        1
+    ],
+    "hit_box_obj": [],
     "lst_vec_point": [
         [
             0.0,

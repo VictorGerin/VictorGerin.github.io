@@ -247,6 +247,39 @@ impl EntityDrawable {
         true
     }
 
+    fn obj_hit_point(
+        obj1: (&ObjectDrawable, &Vec<usize>, &Matrix2xX<f64>),
+        obj2: &Vector2<f64>,
+    ) -> bool {
+        let points1 = obj1
+            .1
+            .into_iter()
+            .flat_map(|x| {
+                let p = obj1.0.hit_box_edge.column(*x);
+                [p.x, p.y]
+            })
+            .collect::<HashSet<usize>>();
+
+        for edge in obj1.1 {
+            let edge = obj1.0.hit_box_edge.column(*edge);
+            let edge_init = obj1.2.column(edge.y);
+            let edge_end = obj1.2.column(edge.x);
+
+            let axis_proj: Vector2<f64> = edge_end - edge_init;
+            let axis_proj: Vector2<f64> = Vector2::new(-axis_proj.y, axis_proj.x).normalize();
+
+            let (min_r1, max_r1) =
+                EntityDrawable::get_min_max_from_proj2(axis_proj, &points1, obj1.2);
+            let r2 = obj2.dotc(&axis_proj);
+
+            if !(r2 >= min_r1 && max_r1 >= r2) {
+                return false;
+            }
+        }
+
+        true
+    }
+
     pub fn hit2(&self, other: &EntityDrawable) -> bool {
         let p1: Matrix2xX<f64> = EntityDrawable::transform_all(self);
         let p2: Matrix2xX<f64> = EntityDrawable::transform_all(other);
@@ -254,6 +287,13 @@ impl EntityDrawable {
         for obj1 in self.object.hit_box_obj.iter() {
             for obj2 in other.object.hit_box_obj.iter() {
                 if EntityDrawable::obj_hit((&self.object, obj1, &p1), (&other.object, obj2, &p2)) {
+                    return true;
+                }
+            }
+
+            if other.object.hit_box_obj.len() == 0 {
+                let p: Vector2<f64> = other.pos.coords + other.object.dimentions() / 2.0;
+                if EntityDrawable::obj_hit_point((&self.object, obj1, &p1), &p) {
                     return true;
                 }
             }
