@@ -3,7 +3,7 @@ use std::rc::Rc;
 use crate::asteroid::shader;
 
 use super::*;
-use na::{Matrix2x3, Point2, Vector3};
+use na::{Matrix2x3, Matrix2xX, Point2, Vector3};
 use serde::Deserialize;
 
 #[derive(Deserialize, Debug, Clone)]
@@ -25,6 +25,9 @@ impl Default for DrawMode {
 #[derive(Deserialize, Debug)]
 pub struct Object {
     dimentions: Vector2<f64>,
+    hit_box: Matrix2xX<f64>,
+    hit_box_edge: Matrix2xX<usize>,
+    hit_box_obj: Vec<Vec<usize>>,
     lst_vec_point: Vec<Point2<f64>>,
     lst_hit_box: Vec<Matrix2x3<f64>>,
     #[serde(default)]
@@ -49,6 +52,9 @@ pub struct ObjectDrawable {
     gl_buf: Rc<WebGlBuffer>,
     vertex_count: i32,
     draw_mode: DrawMode,
+    pub hit_box: Matrix2xX<f64>,
+    pub hit_box_edge: Matrix2xX<usize>,
+    pub hit_box_obj: Vec<Vec<usize>>,
 }
 
 impl Object {
@@ -174,6 +180,9 @@ impl Object {
             gl_buf,
             vertex_count: self.lst_vec_point.len() as i32,
             draw_mode: self.draw_mode,
+            hit_box: self.hit_box,
+            hit_box_edge: self.hit_box_edge,
+            hit_box_obj: self.hit_box_obj,
         }
     }
 }

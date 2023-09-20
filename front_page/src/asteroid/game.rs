@@ -1,6 +1,6 @@
 use std::mem::size_of;
 
-use nalgebra::{Point2, Rotation2, Vector2, Vector3};
+use nalgebra::{Matrix2x3, Point2, Rotation2, Vector2, Vector3};
 use rand::{rngs::ThreadRng, Rng};
 use wasm_bindgen::{JsCast, JsValue};
 use web_sys::{HtmlCanvasElement, WebGlBuffer, WebGlProgram, WebGlRenderingContext};
@@ -125,15 +125,7 @@ pub struct Game {
     last_shoot: f64,
 }
 
-trait GameLogicEntity {
-    fn process_player_acc(&mut self, mouse: Point2<f64>);
-    fn process_player_rot(&mut self, mouse: Point2<f64>);
-    fn process_teleport(&mut self);
-    fn process_redraw(&self, gl: &WebGlRenderingContext) -> Result<(), JsValue>;
-    fn shoud_delete(&self) -> bool;
-}
-
-impl GameLogicEntity for EntityDrawable {
+impl EntityDrawable {
     fn process_player_acc(&mut self, mouse: Point2<f64>) {
         //get center of player
         let player_pos = self.get_pos_center();
@@ -219,17 +211,17 @@ impl Game {
         person.max_speed_sqr = 0.3;
         person.rotation = 0f64.to_radians();
         person.delete_on_out_of_bounds = false;
-        let entities: Vec<EntityDrawable> = vec![person];
+        let mut entities: Vec<EntityDrawable> = vec![person];
 
-        // let mut person2 = EntityDrawable::load_gl(&gl, data::get_asteroid());
-        // person2.object.scale = 6.0;
-        // person2.speed = Vector2::new(0.0, 0.0);
-        // person2.pos = Point2::new(500.0, 500.0) - person2.object.dimentions() / 2.0;
-        // // person2.pos = Game::random_point(&mut rng, Vector2::new(1000.0, 1000.0));
-        // person2.max_speed_sqr = 0.3;
-        // person2.rotation = 0f64.to_radians();
-        // person2.delete_on_out_of_bounds = false;
-        // entities.push(person2);
+        let mut person2 = EntityDrawable::load_gl(&gl, data::get_asteroid());
+        person2.object.scale = 6.0;
+        person2.speed = Vector2::new(0.0, 0.0);
+        person2.pos = Point2::new(500.0, 500.0) - person2.object.dimentions() / 2.0;
+        // person2.pos = Game::random_point(&mut rng, Vector2::new(1000.0, 1000.0));
+        person2.max_speed_sqr = 0.3;
+        person2.rotation = 0f64.to_radians();
+        person2.delete_on_out_of_bounds = false;
+        entities.push(person2);
 
         // gl.viewport(0, 0, canvas.width() as i32, canvas.height() as i32);
 
@@ -300,7 +292,6 @@ impl Game {
     // fn draw_text(&self, time: f64, delta: f64) {
     //     let context: &CanvasRenderingContext2d = &self.context2d;
     //     let player: &EntityDrawable = self.entities.get(self.player_index).unwrap();
-
     //     let mut offset = 1.0;
     //     context
     //         .fill_text(
@@ -411,7 +402,7 @@ impl Game {
         for i in 0..self.entities.len() {
             for j in (i + 1)..self.entities.len() {
                 let color = {
-                    if self.entities[i].hit(&self.entities[j]) {
+                    if self.entities[i].hit2(&self.entities[j]) {
                         Vector3::new(1.0, 0.0, 0.0)
                     } else {
                         Vector3::new(1.0, 0.0, 1.0)

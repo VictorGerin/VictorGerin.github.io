@@ -1,7 +1,9 @@
 extern crate nalgebra as na;
+use std::collections::HashSet;
+
 use super::drawable::*;
 
-use na::{Matrix2x3, Point2, Rotation2, Vector2, Vector3};
+use na::{Matrix2x3, Matrix2xX, Point2, Rotation2, Vector2, Vector3};
 use wasm_bindgen::JsValue;
 use web_sys::WebGlRenderingContext;
 
@@ -140,6 +142,124 @@ impl EntityDrawable {
             .collect();
 
         Matrix2x3::from_columns(&t)
+    }
+
+    pub fn transform_all(obj: &EntityDrawable) -> Matrix2xX<f64> {
+        let dimm: Vector2<f64> = obj.object.dimentions() / 2.0;
+
+        let rot: Rotation2<f64> = Rotation2::new(-obj.rotation);
+
+        let t: Vec<Vector2<f64>> = obj
+            .object
+            .hit_box
+            .column_iter()
+            .map(|x| {
+                let mut x: Vector2<f64> = x * obj.object.scale;
+
+                x -= dimm;
+                x = rot * x;
+                x += dimm;
+
+                x += obj.pos.coords;
+                x
+            })
+            .collect();
+
+        Matrix2xX::from_columns(&t)
+    }
+
+    fn get_min_max_from_proj2(
+        axis_proj: Vector2<f64>,
+        points: &HashSet<usize>,
+        data: &Matrix2xX<f64>,
+    ) -> (f64, f64) {
+        let mut min_r1 = f64::INFINITY;
+        let mut max_r1 = -f64::INFINITY;
+
+        for p in points.iter() {
+            let q = data.column(*p).dotc(&axis_proj);
+
+            min_r1 = q.min(min_r1);
+            max_r1 = q.max(max_r1);
+        }
+
+        return (min_r1, max_r1);
+    }
+
+    fn obj_hit(
+        obj1: (&ObjectDrawable, &Vec<usize>, &Matrix2xX<f64>),
+        obj2: (&ObjectDrawable, &Vec<usize>, &Matrix2xX<f64>),
+    ) -> bool {
+        let points1 = obj1
+            .1
+            .into_iter()
+            .flat_map(|x| {
+                let p = obj1.0.hit_box_edge.column(*x);
+                [p.x, p.y]
+            })
+            .collect::<HashSet<usize>>();
+
+        let points2 = obj2
+            .1
+            .into_iter()
+            .flat_map(|x| {
+                let p = obj2.0.hit_box_edge.column(*x);
+                [p.x, p.y]
+            })
+            .collect::<HashSet<usize>>();
+
+        for edge in obj1.1 {
+            let edge = obj1.0.hit_box_edge.column(*edge);
+            let edge_init = obj1.2.column(edge.y);
+            let edge_end = obj1.2.column(edge.x);
+
+            let axis_proj: Vector2<f64> = edge_end - edge_init;
+            let axis_proj: Vector2<f64> = Vector2::new(-axis_proj.y, axis_proj.x).normalize();
+
+            let (min_r1, max_r1) =
+                EntityDrawable::get_min_max_from_proj2(axis_proj, &points1, obj1.2);
+            let (min_r2, max_r2) =
+                EntityDrawable::get_min_max_from_proj2(axis_proj, &points2, obj2.2);
+
+            if !(max_r2 >= min_r1 && max_r1 >= min_r2) {
+                return false;
+            }
+        }
+
+        for edge in obj2.1 {
+            let edge = obj2.0.hit_box_edge.column(*edge);
+            let edge_init = obj2.2.column(edge.y);
+            let edge_end = obj2.2.column(edge.x);
+
+            let axis_proj: Vector2<f64> = edge_end - edge_init;
+            let axis_proj: Vector2<f64> = Vector2::new(-axis_proj.y, axis_proj.x).normalize();
+
+            let (min_r1, max_r1) =
+                EntityDrawable::get_min_max_from_proj2(axis_proj, &points1, obj1.2);
+            let (min_r2, max_r2) =
+                EntityDrawable::get_min_max_from_proj2(axis_proj, &points2, obj2.2);
+
+            if !(max_r2 >= min_r1 && max_r1 >= min_r2) {
+                return false;
+            }
+        }
+
+        true
+    }
+
+    pub fn hit2(&self, other: &EntityDrawable) -> bool {
+        let p1: Matrix2xX<f64> = EntityDrawable::transform_all(self);
+        let p2: Matrix2xX<f64> = EntityDrawable::transform_all(other);
+
+        for obj1 in self.object.hit_box_obj.iter() {
+            for obj2 in other.object.hit_box_obj.iter() {
+                if EntityDrawable::obj_hit((&self.object, obj1, &p1), (&other.object, obj2, &p2)) {
+                    return true;
+                }
+            }
+        }
+
+        false
     }
 
     /**
