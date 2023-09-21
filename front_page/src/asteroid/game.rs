@@ -1,6 +1,6 @@
 use std::mem::size_of;
 
-use nalgebra::{Matrix2x3, Point2, Rotation2, Vector2, Vector3};
+use nalgebra::{Point2, Rotation2, Vector2};
 use rand::{rngs::ThreadRng, Rng};
 use wasm_bindgen::{JsCast, JsValue};
 use web_sys::{HtmlCanvasElement, WebGlBuffer, WebGlProgram, WebGlRenderingContext};
@@ -114,15 +114,60 @@ pub struct UserInput {
     pub keyboard: KeyBoardInput,
 }
 
+#[derive(Clone, Debug)]
+enum GameEntity {
+    Asteroid {
+        entity: EntityDrawable,
+        size: u32,
+        hit: bool,
+    },
+    Bullet {
+        entity: EntityDrawable,
+        hit: bool,
+    },
+}
+
+impl GameEntity {
+    fn set_hit(&mut self, hit: bool) {
+        match self {
+            GameEntity::Asteroid { hit: h, .. } => *h = hit,
+            GameEntity::Bullet { hit: h, .. } => *h = hit,
+            _ => {}
+        }
+    }
+    fn is_hit(&self) -> bool {
+        match self {
+            GameEntity::Asteroid { hit, .. } => *hit,
+            GameEntity::Bullet { hit, .. } => *hit,
+            _ => false,
+        }
+    }
+    fn get_entity(&self) -> &EntityDrawable {
+        match self {
+            GameEntity::Asteroid { entity, .. } => entity,
+            GameEntity::Bullet { entity, .. } => entity,
+        }
+    }
+
+    fn get_entity_mut(&mut self) -> &mut EntityDrawable {
+        match self {
+            GameEntity::Asteroid { entity, .. } => entity,
+            GameEntity::Bullet { entity, .. } => entity,
+        }
+    }
+}
+
 pub struct Game {
-    entities: Vec<EntityDrawable>,
-    player_index: usize,
+    player: EntityDrawable,
+    entities: Vec<GameEntity>,
     gl: WebGlRenderingContext,
     pub canvas_dim: Vector2<f64>,
     pub map_dim: Vector2<f64>,
     pub input: UserInput,
     rng: rand::rngs::ThreadRng,
     last_shoot: f64,
+    level: u32,
+    kill_count: u32,
 }
 
 impl EntityDrawable {
@@ -204,36 +249,37 @@ impl Game {
             .dyn_into::<web_sys::WebGlRenderingContext>()
             .unwrap();
 
-        let mut person = EntityDrawable::load_gl(&gl, data::get_ship());
+        let mut player = EntityDrawable::load_gl(&gl, data::get_ship());
 
-        person.speed = Vector2::new(0.0, 0.0);
-        person.pos = Point2::new(0.0, 200.0);
-        person.max_speed_sqr = 0.3;
-        person.rotation = 0f64.to_radians();
-        person.delete_on_out_of_bounds = false;
-        let mut entities: Vec<EntityDrawable> = vec![person];
+        player.speed = Vector2::new(0.0, 0.0);
+        player.pos = Point2::new(0.0, 0.0);
+        player.max_speed_sqr = 0.3;
+        player.rotation = 0f64.to_radians();
+        player.delete_on_out_of_bounds = false;
 
-        let mut person2 = EntityDrawable::load_gl(&gl, data::get_asteroid());
-        person2.object.scale = 6.0;
-        person2.speed = Vector2::new(0.0, 0.0);
-        person2.pos = Point2::new(500.0, 500.0) - person2.object.dimentions() / 2.0;
-        // person2.pos = Game::random_point(&mut rng, Vector2::new(1000.0, 1000.0));
-        person2.max_speed_sqr = 0.3;
-        person2.rotation = 0f64.to_radians();
-        person2.delete_on_out_of_bounds = false;
-        entities.push(person2);
+        // let mut person2 = EntityDrawable::load_gl(&gl, data::get_asteroid());
+        // person2.object.scale = 6.0;
+        // person2.speed = Vector2::new(0.0, 0.0);
+        // person2.pos = Point2::new(500.0, 500.0) - person2.object.dimentions() / 2.0;
+        // // person2.pos = Game::random_point(&mut rng, Vector2::new(1000.0, 1000.0));
+        // person2.max_speed_sqr = 0.3;
+        // person2.rotation = 0f64.to_radians();
+        // person2.delete_on_out_of_bounds = false;
+        // entities.push(person2);
 
         // gl.viewport(0, 0, canvas.width() as i32, canvas.height() as i32);
 
         Self {
-            entities,
+            player,
+            entities: vec![],
             gl,
             canvas_dim: Vector2::new(canvas.width() as f64, canvas.height() as f64),
             map_dim: Vector2::new(2000.0, 2000.0),
             input: Default::default(),
-            player_index: 0, //player is always the first entity
             rng,
             last_shoot: 0.0,
+            level: 1,
+            kill_count: 0,
         }
     }
 
@@ -270,7 +316,7 @@ impl Game {
         player: &EntityDrawable,
         input: &UserInput,
         gl: &WebGlRenderingContext,
-    ) -> EntityDrawable {
+    ) -> GameEntity {
         let nav_center: Vector2<f64> = player.get_pos_center().coords;
         let rot = Rotation2::new(-player.rotation);
         let up = rot * (Vector2::y() * player.object.dimentions().y / 2.0);
@@ -286,7 +332,10 @@ impl Game {
         // bullet.object.scale = 5.0;
         bullet.pos = (coors - bullet.object.dimentions() / 2.0).into();
         bullet.speed = dir_vector * 1.0 + player.speed;
-        bullet
+        GameEntity::Bullet {
+            entity: bullet,
+            hit: false,
+        }
     }
 
     // fn draw_text(&self, time: f64, delta: f64) {
@@ -339,16 +388,26 @@ impl Game {
         Point2::new(rng.gen_range(0.0..map_dim.x), rng.gen_range(0.0..map_dim.y))
     }
 
-    fn spawn_asteroid(&mut self) -> EntityDrawable {
+    fn spawn_asteroid(&mut self) -> GameEntity {
         let mut asteroid = EntityDrawable::load_gl(&self.gl, data::get_asteroid());
 
+        let max_speed = 0.6;
+
         let pos = Game::random_point(&mut self.rng, self.map_dim);
-        asteroid.speed = Vector2::new(0.0, 0.0);
+        asteroid.speed = Vector2::new(
+            self.rng.gen_range(0.0..=max_speed),
+            self.rng.gen_range(0.0..=max_speed),
+        );
         asteroid.pos = pos;
-        asteroid.rotation = 0f64.to_radians();
+        asteroid.object.scale = 2.0 * 3.0;
+        asteroid.rotation = (self.rng.gen_range(0.0..=360.0) as f64).to_radians();
         asteroid.delete_on_out_of_bounds = false;
 
-        asteroid
+        GameEntity::Asteroid {
+            entity: asteroid,
+            size: 2,
+            hit: false,
+        }
     }
 
     pub fn game_loop(&mut self, time: f64, delta: f64) {
@@ -357,71 +416,159 @@ impl Game {
             WebGlRenderingContext::COLOR_BUFFER_BIT | WebGlRenderingContext::DEPTH_BUFFER_BIT,
         );
 
+        if self
+            .entities
+            .iter()
+            .filter(|x| match x {
+                GameEntity::Asteroid { .. } => true,
+                _ => false,
+            })
+            .count()
+            == 0
+        {
+            let qtd = 2 + self.level;
+            //let qtd = 1;
+            for _ in 0..qtd {
+                let entity = self.spawn_asteroid();
+                self.entities.push(entity);
+            }
+            self.level += 1;
+        }
+
         // self.draw_vector();
 
         // let data = [-1.0, 0.0, 1.0, 0.0, 0.0, -1.0, 0.0, 1.0];
         // let teste = TesteDraw::new(&self.gl, &data, WebGlRenderingContext::LINES, 0f32);
         // teste.draw(&self.gl);
 
-        {
-            let player = self.entities.get_mut(self.player_index).unwrap();
-            if self.input.mouse.left {
-                player.process_player_acc(self.input.mouse.pos);
-            } else if player.speed.magnitude() > 0.001 {
-                let arrasto: Vector2<f64> = player.speed.normalize() * -0.00007;
-                player.acc = arrasto;
-            } else {
-                player.acc = Vector2::default();
-                player.speed = Vector2::default();
-            }
+        if self.input.mouse.left {
+            self.player.process_player_acc(self.input.mouse.pos);
+        } else if self.player.speed.magnitude() > 0.001 {
+            let arrasto: Vector2<f64> = self.player.speed.normalize() * -0.00007;
+            self.player.acc = arrasto;
+        } else {
+            self.player.acc = Vector2::default();
+            self.player.speed = Vector2::default();
+        }
 
-            if self.input.mouse.left || self.input.mouse.right {
-                player.process_player_rot(self.input.mouse.pos);
-            }
+        if self.input.mouse.left || self.input.mouse.right {
+            self.player.process_player_rot(self.input.mouse.pos);
         }
 
         if self.input.mouse.right {
-            if (time - self.last_shoot) > 200.0 {
-                let player = self.entities.get(self.player_index).unwrap();
-                let bullet = Game::spawn_bullet(player, &self.input, &self.gl);
-                self.entities.push(bullet);
-                self.last_shoot = time;
-            }
+            // if (time - self.last_shoot) > 200.0 {
+            let bullet = Game::spawn_bullet(&self.player, &self.input, &self.gl);
+            self.entities.push(bullet);
+            self.last_shoot = time;
+            // }
         }
 
-        if let ButtonState::Pressed = self.input.keyboard.space {
-            let entity = self.spawn_asteroid();
-            self.entities.push(entity);
-        }
+        // if let ButtonState::Pressed = self.input.keyboard.space {
+        //     let entity = self.spawn_asteroid();
+        //     self.entities.push(entity);
+        // }
 
+        self.player.update_physics(delta);
         //physics loop
-        for entity in self.entities.iter_mut() {
+        for entity in self.entities.iter_mut().map(|x| x.get_entity_mut()) {
             entity.update_physics(delta);
         }
 
-        for i in 0..self.entities.len() {
-            for j in (i + 1)..self.entities.len() {
-                let color = {
-                    if self.entities[i].hit2(&self.entities[j]) {
-                        Vector3::new(1.0, 0.0, 0.0)
-                    } else {
-                        Vector3::new(1.0, 0.0, 1.0)
+        let index_bullet: Vec<usize> = self
+            .entities
+            .iter()
+            .enumerate()
+            .filter(|(y, x)| match x {
+                GameEntity::Bullet { .. } => true,
+                _ => false,
+            })
+            .map(|x| x.0)
+            .collect();
+
+        let index_asteroid: Vec<usize> = self
+            .entities
+            .iter()
+            .enumerate()
+            .filter(|(y, x)| match x {
+                GameEntity::Asteroid { .. } => true,
+                _ => false,
+            })
+            .map(|x| x.0)
+            .collect();
+
+        let mut new_asteroid: Vec<GameEntity> = vec![];
+        for i in index_asteroid {
+            for j in index_bullet.clone() {
+                if self.entities[i].is_hit() || self.entities[j].is_hit() {
+                    continue;
+                }
+
+                if self.entities[i]
+                    .get_entity()
+                    .hit2(&self.entities[j].get_entity())
+                {
+                    self.kill_count += 1;
+                    log::info!("kill count: {}", self.kill_count);
+
+                    self.entities.get_mut(i).unwrap().set_hit(true);
+                    self.entities.get_mut(j).unwrap().set_hit(true);
+
+                    if let GameEntity::Asteroid { size, .. } = self.entities[i] {
+                        if size <= 1 {
+                            continue;
+                        }
+                        let size = size - 1;
+                        let mut asteroid = self.entities[i].get_entity().clone();
+                        asteroid.object.scale = 3.0 * (size as f64);
+                        asteroid.speed = Vector2::new(
+                            self.rng.gen_range(0.0..=0.6),
+                            self.rng.gen_range(0.0..=0.6),
+                        );
+                        asteroid.rotation = (self.rng.gen_range(0.0..=360.0) as f64).to_radians();
+
+                        new_asteroid.push(GameEntity::Asteroid {
+                            entity: asteroid,
+                            size: size,
+                            hit: false,
+                        });
+
+                        let mut asteroid = self.entities[i].get_entity().clone();
+                        asteroid.object.scale = 3.0 * (size as f64);
+                        asteroid.speed = Vector2::new(
+                            self.rng.gen_range(0.0..=0.6),
+                            self.rng.gen_range(0.0..=0.6),
+                        );
+                        asteroid.rotation = (self.rng.gen_range(0.0..=360.0) as f64).to_radians();
+
+                        new_asteroid.push(GameEntity::Asteroid {
+                            entity: asteroid,
+                            size: size,
+                            hit: false,
+                        });
                     }
-                };
-                self.entities.get_mut(i).unwrap().color = color;
-                self.entities.get_mut(j).unwrap().color = color;
+
+                    continue;
+                }
+            }
+
+            if self.player.hit2(&self.entities[i].get_entity()) {
+                self.kill_count += 0;
+                log::info!("player has died");
             }
         }
 
-        self.entities = self
-            .entities
+        new_asteroid.extend(self.entities.clone());
+        self.entities = new_asteroid
             .iter()
-            .filter(|x| !x.delete_on_out_of_bounds || !x.shoud_delete())
+            .filter(|x| {
+                !(x.get_entity().delete_on_out_of_bounds && x.get_entity().shoud_delete()
+                    || x.is_hit())
+            })
             .cloned()
             .collect();
 
         for entity in self.entities.iter_mut() {
-            entity.process_teleport();
+            entity.get_entity_mut().process_teleport();
         }
 
         //uncoment for debug colisions triagles
@@ -442,10 +589,13 @@ impl Game {
         // }
 
         // //Draw loop
-        for entity in self.entities.iter() {
+        for entity in self.entities.iter().map(|x| x.get_entity()) {
             entity.draw(&self.gl).unwrap();
             entity.process_redraw(&self.gl).unwrap();
         }
+
+        self.player.draw(&self.gl).unwrap();
+        self.player.process_redraw(&self.gl).unwrap();
 
         // {
         //     self.draw_text(time, delta);

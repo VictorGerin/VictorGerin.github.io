@@ -1,0 +1,68 @@
+Date : 2023-09-21 08:42:23
+Directory : c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page
+Total : 25 files,  2648 codes, 140 comments, 399 blanks, all 3187 lines
+
+Languages
++----------+------------+------------+------------+------------+------------+
+| language | files      | code       | comment    | blank      | total      |
++----------+------------+------------+------------+------------+------------+
+| Rust     |         12 |      1,227 |        136 |        251 |      1,614 |
+| TOML     |          2 |      1,062 |          3 |        118 |      1,183 |
+| JSON     |          4 |        249 |          0 |          0 |        249 |
+| SCSS     |          1 |         56 |          1 |          8 |         65 |
+| GLSL     |          4 |         45 |          0 |         21 |         66 |
+| HTML     |          1 |          8 |          0 |          1 |          9 |
+| Markdown |          1 |          1 |          0 |          0 |          1 |
++----------+------------+------------+------------+------------+------------+
+
+Directories
++--------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                                     | files      | code       | comment    | blank      | total      |
++--------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                                        |         25 |      2,648 |        140 |        399 |      3,187 |
+| . (Files)                                                                                                                |          5 |      1,127 |          4 |        127 |      1,258 |
+| src                                                                                                                      |         20 |      1,521 |        136 |        272 |      1,929 |
+| src (Files)                                                                                                              |          3 |         67 |          7 |         19 |         93 |
+| src\asteroid                                                                                                             |         15 |      1,416 |        122 |        243 |      1,781 |
+| src\asteroid (Files)                                                                                                     |          2 |        591 |        102 |        110 |        803 |
+| src\asteroid\data                                                                                                        |          5 |        258 |          3 |          3 |        264 |
+| src\asteroid\drawable                                                                                                    |          2 |        236 |          8 |         40 |        284 |
+| src\asteroid\entity                                                                                                      |          1 |        274 |          9 |         65 |        348 |
+| src\asteroid\shader                                                                                                      |          5 |         57 |          0 |         25 |         82 |
+| src\asteroid\shader (Files)                                                                                              |          1 |         12 |          0 |          4 |         16 |
+| src\asteroid\shader\Object                                                                                               |          2 |         32 |          0 |         15 |         47 |
+| src\asteroid\shader\Teste                                                                                                |          2 |         13 |          0 |          6 |         19 |
+| src\hook                                                                                                                 |          2 |         38 |          7 |         10 |         55 |
++--------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++--------------------------------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| filename                                                                                                                 | language | code       | comment    | blank      | total      |
++--------------------------------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\Cargo.lock                                      | TOML     |      1,021 |          2 |        115 |      1,138 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\Cargo.toml                                      | TOML     |         41 |          1 |          3 |         45 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\README.md                                       | Markdown |          1 |          0 |          0 |          1 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\index.html                                      | HTML     |          8 |          0 |          1 |          9 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\index.scss                                      | SCSS     |         56 |          1 |          8 |         65 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\src\app.rs                                      | Rust     |         14 |          7 |          2 |         23 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\src\asteroid\data\asteroid.json                 | JSON     |        113 |          0 |          0 |        113 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\src\asteroid\data\bullet.json                   | JSON     |         32 |          0 |          0 |         32 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\src\asteroid\data\mod.rs                        | Rust     |          9 |          3 |          3 |         15 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\src\asteroid\data\ship.json                     | JSON     |         86 |          0 |          0 |         86 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\src\asteroid\data\teste.json                    | JSON     |         18 |          0 |          0 |         18 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\src\asteroid\drawable\mod.rs                    | Rust     |         15 |          0 |          4 |         19 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\src\asteroid\drawable\object.rs                 | Rust     |        221 |          8 |         36 |        265 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\src\asteroid\entity\mod.rs                      | Rust     |        274 |          9 |         65 |        348 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\src\asteroid\game.rs                            | Rust     |        435 |         90 |         80 |        605 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\src\asteroid\mod.rs                             | Rust     |        156 |         12 |         30 |        198 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\src\asteroid\shader\Object\fragment_shader.glsl | GLSL     |          6 |          0 |          3 |          9 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\src\asteroid\shader\Object\vertex_shader.glsl   | GLSL     |         26 |          0 |         12 |         38 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\src\asteroid\shader\Teste\fragment.glsl         | GLSL     |          5 |          0 |          2 |          7 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\src\asteroid\shader\Teste\vertex.glsl           | GLSL     |          8 |          0 |          4 |         12 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\src\asteroid\shader\mod.rs                      | Rust     |         12 |          0 |          4 |         16 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\src\example_request.rs                          | Rust     |         45 |          0 |         14 |         59 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\src\hook\mod.rs                                 | Rust     |          2 |          0 |          2 |          4 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\src\hook\use_framerate.rs                       | Rust     |         36 |          7 |          8 |         51 |
+| c:\Users\victo\OneDrive\Documentos\rust\VictorGerin.github.io\front_page\src\main.rs                                     | Rust     |          8 |          0 |          3 |         11 |
+| Total                                                                                                                    |          |      2,648 |        140 |        399 |      3,187 |
++--------------------------------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
